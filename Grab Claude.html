@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#f9f9f7">
+<title>Crab Catcher · Tokens</title>
+<style>
+:root{
+  --paper:#f9f9f7;--surface:#ffffff;--ink:#141413;--ink2:#3d3c38;--muted:#77756f;
+  --line:#e4e2dd;--crab:#d97757;--eye:#141413;--orange:#d97757;--orange-dark:#bd5f42;
+  --gold:#d9a23a;--gold-dark:#a87418;
+  --serif:Georgia,"Times New Roman","Songti SC",serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;overflow:hidden}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-user-select:none;user-select:none}
+button{font:inherit;cursor:pointer;color:inherit}
+#app{height:100%;max-width:1120px;margin:auto;display:flex;flex-direction:column;position:relative}
+header{height:72px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 28px;padding-top:env(safe-area-inset-top);border-bottom:1px solid var(--line);background:var(--paper)}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--serif);font-size:27px;letter-spacing:-.65px}
+.head-right{display:flex;align-items:center;gap:8px}
+.icon-btn{width:38px;height:38px;border-radius:999px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;color:var(--muted)}
+.icon-btn svg{width:17px;height:17px}
+.icon-btn .off{display:none}.icon-btn.muted .on{display:none}.icon-btn.muted .off{display:block}
+.token-chip{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:9px 13px;font-size:13px;color:var(--muted)}
+.token-chip strong{color:var(--ink);font-size:14px;font-variant-numeric:tabular-nums;display:inline-block}
+.token-chip.bump strong{animation:bump .32s cubic-bezier(.2,1.8,.4,1)}
+.token-chip.bump .spark{animation:spin .4s ease-out}
+.spark{color:var(--crab);display:inline-block}
+@keyframes bump{0%{transform:scale(1)}35%{transform:scale(1.35);color:var(--orange-dark)}100%{transform:scale(1)}}
+@keyframes spin{to{transform:rotate(180deg) scale(1)}}
+
+/* ===== crab model: 12×8 grid, measured from Claude Code ===== */
+.crab-svg{display:block;overflow:visible}
+.crab-svg .shell,.crab-svg .leg{fill:var(--crab)}
+.crab-svg .eyes{fill:var(--eye);animation:blink 4.2s infinite;animation-delay:var(--bd,0s)}
+@keyframes blink{0%,95%,100%{opacity:1}96.5%,98.5%{opacity:0}}
+.mark{display:block;width:39px;height:26px;flex-shrink:0}
+
+main{flex:1;min-height:0;overflow:auto;padding:30px 22px 24px;display:flex;flex-direction:column}
+.intro{text-align:center;margin:0 auto 22px;max-width:500px}
+.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:1.8px;color:var(--muted);font-weight:600;margin-bottom:12px}
+h1{font-family:var(--serif);font-weight:400;font-size:clamp(30px,6vw,40px);letter-spacing:-1.1px;line-height:1.12}
+.subtitle{font-size:14px;line-height:1.6;color:var(--muted);margin-top:11px}
+.stats{display:flex;justify-content:center;gap:10px;margin:0 auto 18px;width:100%;max-width:430px}
+.stat{border:1px solid var(--line);border-radius:14px;padding:12px 15px;flex:1;text-align:center;min-width:0}
+.stat-label{font-size:11px;color:var(--muted);margin-bottom:5px}
+.stat-value{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;display:inline-block}
+.stat-value.pop{animation:bump .28s cubic-bezier(.2,1.8,.4,1)}
+.stat-value.urgent{color:var(--orange-dark)}
+.stat-value.tick{animation:tick .5s ease-out}
+@keyframes tick{0%{transform:scale(1.28)}100%{transform:scale(1)}}
+
+#play-area{position:relative;flex:1;min-height:260px;max-height:470px;width:100%;border:1px solid var(--line);border-radius:20px;background:#fbfbfa;overflow:hidden;isolation:isolate;touch-action:none;cursor:crosshair;will-change:transform}
+#play-area:before{content:"";position:absolute;inset:0;opacity:.45;pointer-events:none;background-image:radial-gradient(#e8e3d9 .75px,transparent .75px);background-size:18px 18px}
+#flash{position:absolute;inset:0;z-index:6;pointer-events:none;background:var(--crab);opacity:0}
+#flash.go{animation:flash .18s ease-out}
+@keyframes flash{0%{opacity:.14}100%{opacity:0}}
+#timebar{position:absolute;left:0;top:0;height:3px;width:100%;background:var(--crab);transform-origin:left;z-index:5;transform:scaleX(0);opacity:.85}
+#timebar.urgent{animation:barpulse .5s steps(2) infinite}
+@keyframes barpulse{50%{opacity:.35}}
+canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none;image-rendering:pixelated}
+
+.play-hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;pointer-events:none;text-align:center;padding:24px}
+.play-hint .mark{width:72px;height:48px}
+.play-hint span{font-size:19px;color:var(--ink2);letter-spacing:1px}
+
+.crab{position:absolute;left:0;top:0;z-index:2;pointer-events:none;will-change:transform}
+.crab-body{width:100%;height:100%;transform-origin:50% 100%;animation:emerge .3s cubic-bezier(.25,1.7,.45,1) both}
+.crab-body .crab-svg{width:100%;height:100%}
+.crab.walking .leg-a{animation:stepA .22s steps(1) infinite}
+.crab.walking .leg-b{animation:stepA .22s steps(1) infinite;animation-delay:-.11s}
+@keyframes stepA{0%{transform:translateY(0)}50%{transform:translateY(-1px)}}
+@keyframes emerge{0%{opacity:0;transform:translateY(35%) scale(.7,.15)}60%{opacity:1}100%{opacity:1;transform:none}}
+.crab.hit .crab-body{animation:none;transform:scale(1.3,.68)}
+.crab.hit .shell,.crab.hit .leg{fill:var(--ink)}
+.crab.hit .eyes{fill:#fff;animation:none;opacity:1}
+.crab.leaving .crab-body{animation:dig .24s cubic-bezier(.5,0,.8,.4) forwards}
+@keyframes dig{0%{transform:scale(1.12,.86)}100%{transform:translateY(30%) scale(.9,0);opacity:0}}
+.crab.golden{--crab:var(--gold)}
+.crab.golden:before,.crab.golden:after{content:"";position:absolute;width:5px;height:5px;background:var(--gold);animation:twinkle .5s steps(2) infinite}
+.crab.golden:before{left:-8px;top:-6px}
+.crab.golden:after{right:-8px;top:2px;animation-delay:-.25s}
+@keyframes twinkle{50%{opacity:0}}
+
+.float-txt{position:absolute;z-index:4;pointer-events:none;font-weight:700;color:var(--orange-dark);font-size:18px;font-variant-numeric:tabular-nums;white-space:nowrap;transform:translate(-50%,-50%);animation:floatup .75s cubic-bezier(.2,.9,.3,1) forwards}
+.float-txt.big{font-size:26px;color:var(--gold-dark)}
+.float-txt.miss{color:#b3afa6;font-size:13px;font-weight:500}
+@keyframes floatup{0%{transform:translate(-50%,-50%) scale(.4)}22%{transform:translate(-50%,-90%) scale(1.25)}100%{transform:translate(-50%,-260%) scale(1);opacity:0}}
+
+#combo{position:absolute;top:14px;right:16px;z-index:5;pointer-events:none;text-align:right;opacity:0;transition:opacity .2s}
+#combo.show{opacity:1}
+#combo .n{font-family:var(--serif);font-size:34px;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums;display:inline-block}
+#combo .n.pop{animation:cpop .25s cubic-bezier(.2,1.9,.4,1)}
+#combo .lbl{font-size:11px;letter-spacing:1.5px;color:var(--muted);margin-top:4px}
+#combo .meter{height:2px;background:var(--line);margin-top:6px;width:64px;margin-left:auto;overflow:hidden}
+#combo .meter i{display:block;height:100%;background:var(--crab);transform-origin:left}
+#combo.hot .n{color:var(--orange-dark)}
+@keyframes cpop{0%{transform:scale(1.7) rotate(-6deg)}100%{transform:none}}
+#banner{position:absolute;left:50%;top:42%;z-index:6;pointer-events:none;text-align:center;transform:translate(-50%,-50%);opacity:0}
+#banner.go{animation:banner .9s cubic-bezier(.2,.9,.3,1) forwards}
+#banner b{display:block;font-family:var(--serif);font-weight:400;font-size:40px;color:var(--ink);letter-spacing:-1px}
+#banner span{font-size:13px;color:var(--orange-dark);font-weight:600}
+@keyframes banner{0%{opacity:0;transform:translate(-50%,-50%) scale(1.8)}15%{opacity:1;transform:translate(-50%,-50%) scale(1)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-80%)}}
+
+.controls{width:100%;max-width:430px;margin:18px auto 0}
+.primary{width:100%;border:0;border-radius:13px;background:var(--orange);color:#fff;padding:16px 18px;font-weight:500;font-size:15px;transition:background .15s,transform .15s}
+.primary:active{background:var(--orange-dark);transform:scale(.985)}
+.primary:disabled{opacity:.45;cursor:default}
+.secondary-row{display:flex;justify-content:space-between;align-items:center;margin-top:13px;font-size:12px;color:var(--muted);gap:10px}
+.secondary{border:0;background:transparent;color:var(--orange-dark);padding:8px 0;font-size:12px;flex-shrink:0}
+.note{font-size:11px;line-height:1.5;color:#9a978e;text-align:center;margin-top:12px}
+
+#result{display:none;position:absolute;inset:0;z-index:8;background:rgba(249,249,247,.88);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);align-items:center;justify-content:center;padding:20px;cursor:default}
+#result.show{display:flex}
+.result-card{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:26px 24px;width:100%;max-width:330px;text-align:center;box-shadow:0 12px 40px rgba(45,37,26,.06);animation:card .35s cubic-bezier(.2,1.4,.4,1)}
+@keyframes card{from{transform:translateY(14px) scale(.96);opacity:0}}
+.result-card .mark{width:48px;height:32px;margin:0 auto 14px}
+.result-card h2{font-family:var(--serif);font-size:29px;font-weight:400;margin-bottom:6px}
+.result-card p{color:var(--muted);font-size:13px}
+.result-score{font-size:36px;font-weight:650;margin:12px 0 4px;font-variant-numeric:tabular-nums}
+.result-meta{display:flex;justify-content:center;gap:18px;margin:12px 0 20px;font-size:12px;color:var(--muted)}
+.result-meta b{display:block;font-size:17px;color:var(--ink);font-variant-numeric:tabular-nums;margin-bottom:2px}
+.record{display:none;font-size:11px;letter-spacing:1.5px;color:var(--orange-dark);font-weight:600;margin-top:2px}
+.record.show{display:block}
+@media(min-width:600px){
+  #play-area{max-width:780px;align-self:center;min-height:330px}
+}
+@media(max-width:520px){
+  header{padding:0 17px}
+  main{padding:22px 16px 20px}
+  .brand{font-size:23px}
+  .token-chip{padding:8px 10px}
+}
+@media(max-height:700px){main{padding-top:16px}.intro{margin-bottom:14px}.subtitle{margin-top:7px}.stats{margin-bottom:12px}#play-area{min-height:210px}.controls{margin-top:12px}}
+@media(prefers-reduced-motion:reduce){.crab.walking .leg-a,.crab.walking .leg-b{animation:none}}
+</style>
+</head>
+<body>
+<div id="app">
+<header>
+  <div class="brand"><span class="mark" data-crab></span><span>Claude</span></div>
+  <div class="head-right">
+    <button class="icon-btn" id="sound" aria-label="声音开关">
+      <svg class="on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+      <svg class="off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="m16 9 6 6M22 9l-6 6"/></svg>
+    </button>
+    <div class="token-chip" id="chip"><span class="spark">✦</span><span>Tokens</span><strong id="total-tokens">0</strong></div>
+  </div>
+</header>
+<main>
+  <section class="intro">
+    <div class="eyebrow">Code</div>
+    <h1>随时待命</h1>
+    <p class="subtitle">点击出现的螃蟹，获得 Token。连击越高，手感越重。</p>
+  </section>
+  <section class="stats" aria-label="Game stats">
+    <div class="stat"><div class="stat-label">本局获得</div><div class="stat-value" id="round-score">0</div></div>
+    <div class="stat"><div class="stat-label">剩余时间</div><div class="stat-value" id="timer">20.0s</div></div>
+    <div class="stat"><div class="stat-label">累计抓获</div><div class="stat-value" id="total-caught">0</div></div>
+  </section>
+  <section id="play-area" aria-label="抓螃蟹游戏区域">
+    <div id="timebar"></div>
+    <canvas id="fx"></canvas>
+    <div id="flash"></div>
+    <div class="play-hint" id="hint"><span class="mark" data-crab></span><span>随时待命</span></div>
+    <div id="combo"><div class="n" id="combo-n">0</div><div class="lbl">连击</div><div class="meter"><i id="combo-meter"></i></div></div>
+    <div id="banner"><b id="banner-t"></b><span id="banner-s"></span></div>
+    <div id="result">
+      <div class="result-card">
+        <span class="mark" data-crab></span>
+        <h2 id="result-title">抓得不错。</h2>
+        <p>本局获得的 Token 已加入累计总数。</p>
+        <div class="result-score" id="result-score">+0 Tokens</div>
+        <div class="record" id="record">新纪录</div>
+        <div class="result-meta">
+          <div><b id="r-combo">0</b>最高连击</div>
+          <div><b id="r-acc">0%</b>命中率</div>
+          <div><b id="r-best">0</b>最佳单局</div>
+        </div>
+        <button class="primary" id="again">再抓一局</button>
+      </div>
+    </div>
+  </section>
+  <div class="controls">
+    <button class="primary" id="start">开始抓螃蟹</button>
+    <div class="secondary-row"><span>每只 +1 · 金蟹 +10 · 每 10 连击 +5</span><button class="secondary" id="reset">重置记录</button></div>
+    <p class="note">Tokens 仅为游戏积分，不是 Claude API 用量。</p>
+  </div>
+</main>
+</div>
+<script>
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const area = $('play-area'), cv = $('fx'), g = cv.getContext('2d');
+  const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- Model: Claude Code crab, 12×8, measured pixel-for-pixel ---------- */
+  const GRID = [
+    '..########..',
+    '..#E####E#..',
+    '############',
+    '############',
+    '..########..',
+    '..########..',
+    '..#.#..#.#..',
+    '..#.#..#.#..'
+  ];
+  // legs start at y=5 (tucked under shell) so a 1-unit lift reads as a step
+  const crabSVG = () =>
+    '<svg class="crab-svg" viewBox="0 0 12 8" shape-rendering="crispEdges" aria-hidden="true">' +
+    '<path class="leg leg-a" d="M2 5h1v3H2zM7 5h1v3H7z"/>' +
+    '<path class="leg leg-b" d="M4 5h1v3H4zM9 5h1v3H9z"/>' +
+    '<path class="shell" d="M2 0h8v2h2v2h-2v2H2V4H0V2h2z"/>' +
+    '<path class="eyes" d="M3 1h1v1H3zM8 1h1v1H8z"/></svg>';
+  document.querySelectorAll('[data-crab]').forEach(n => n.innerHTML = crabSVG());
+  const CSSV = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const COL = {crab: CSSV('--crab'), eye: CSSV('--eye'), gold: CSSV('--gold'), ink: CSSV('--ink'), dust: '#d9d3c7'};
+
+  /* ---------- Sound ---------- */
+  const Sfx = (() => {
+    let ctx = null, master = null, nbuf = null, on = true;
+    try { on = localStorage.getItem('crabcatcher_sfx') !== '0'; } catch (_) {}
+    function init() {
+      if (ctx) { if (ctx.state === 'suspended') ctx.resume(); return; }
+      const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+      ctx = new AC(); master = ctx.createGain(); master.gain.value = .5; master.connect(ctx.destination);
+      nbuf = ctx.createBuffer(1, ctx.sampleRate * .25, ctx.sampleRate);
+      const d = nbuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    }
+    function tone(type, f0, f1, dur, vol, t = 0) {
+      if (!ctx || !on) return;
+      const t0 = ctx.currentTime + t, o = ctx.createOscillator(), a = ctx.createGain();
+      o.type = type; o.frequency.setValueAtTime(f0, t0);
+      if (f1) o.frequency.exponentialRampToValueAtTime(f1, t0 + dur);
+      a.gain.setValueAtTime(.0001, t0); a.gain.exponentialRampToValueAtTime(vol, t0 + .004);
+      a.gain.exponentialRampToValueAtTime(.0001, t0 + dur);
+      o.connect(a); a.connect(master); o.start(t0); o.stop(t0 + dur + .03);
+    }
+    function noise(dur, vol, freq, t = 0) {
+      if (!ctx || !on) return;
+      const t0 = ctx.currentTime + t, s = ctx.createBufferSource(), f = ctx.createBiquadFilter(), a = ctx.createGain();
+      s.buffer = nbuf; f.type = 'bandpass'; f.frequency.value = freq; f.Q.value = 1.1;
+      a.gain.setValueAtTime(vol, t0); a.gain.exponentialRampToValueAtTime(.0001, t0 + dur);
+      s.connect(f); f.connect(a); a.connect(master); s.start(t0); s.stop(t0 + dur + .02);
+    }
+    const st = n => Math.pow(2, n / 12);
+    return {
+      init,
+      get on() { return on; },
+      toggle() { on = !on; try { localStorage.setItem('crabcatcher_sfx', on ? '1' : '0'); } catch (_) {} return on; },
+      hit(combo, golden) {
+        const s = Math.min(combo - 1, 14);
+        tone('sine', 210, 48, .14, .95);          // body thump
+        noise(.045, .55, 3000);                   // shell crack
+        noise(.09, .25, 700);                     // crunch
+        tone('square', 392 * st(s), null, .055, .06, .004); // rising combo pip
+        if (golden) [0, 4, 7, 12, 16].forEach((n, i) => tone('triangle', 784 * st(n), null, .18, .16, .06 + i * .05));
+      },
+      miss() { tone('sine', 140, 80, .08, .22); noise(.03, .1, 500); },
+      tick(last) { tone('square', last ? 1568 : 1175, null, .035, .045); },
+      milestone() { [0, 7, 12, 19].forEach((n, i) => tone('triangle', 523 * st(n), null, .22, .15, i * .065)); noise(.25, .12, 6000, .2); },
+      end() { tone('triangle', 659, null, .2, .14); tone('triangle', 988, null, .35, .12, .12); },
+      start() { tone('square', 523, null, .05, .05); tone('square', 784, null, .07, .05, .07); }
+    };
+  })();
+
+  /* ---------- State ---------- */
+  const state = {active: false, time: 20, score: 0, tokens: 0, caught: 0, best: 0,
+    combo: 0, maxCombo: 0, comboT: 0, hits: 0, misses: 0, spawnIn: 0, elapsed: 0, lastSec: 99};
+  const ROUND = 20, COMBO_WIN = 1.6;
+  try {
+    const s = JSON.parse(localStorage.getItem('crabcatcher_claude_v1') || '{}');
+    state.tokens = +s.tokens || 0; state.caught = +s.caught || 0; state.best = +s.best || 0;
+  } catch (_) {}
+  const persist = () => { try { localStorage.setItem('crabcatcher_claude_v1', JSON.stringify({tokens: state.tokens, caught: state.caught, best: state.best})); } catch (_) {} };
+
+  const restart = (el, cls) => { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); };
+  let shownSec = '';
+  function render() {
+    $('total-tokens').textContent = state.tokens;
+    $('total-caught').textContent = state.caught;
+    $('round-score').textContent = state.score;
+    const t = state.time.toFixed(1) + 's';
+    if (t !== shownSec) { $('timer').textContent = t; shownSec = t; }
+    $('timer').classList.toggle('urgent', state.active && state.time <= 5);
+  }
+
+  /* ---------- Canvas FX ---------- */
+  let W = 0, H = 0, DPR = 1;
+  function resize() {
+    DPR = Math.min(3, window.devicePixelRatio || 1);
+    W = area.clientWidth; H = area.clientHeight;
+    cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
+    g.setTransform(DPR, 0, 0, DPR, 0, 0); g.imageSmoothingEnabled = false;
+  }
+  new ResizeObserver(resize).observe(area); resize();
+
+  const parts = [];   // {type, x,y,vx,vy,life,max,size,color,...}
+  function shatter(c, px, py) {
+    const u = c.u, col = c.golden ? COL.gold : COL.crab;
+    for (let r = 0; r < 8; r++) for (let k = 0; k < 12; k++) {
+      const ch = GRID[r][k]; if (ch === '.') continue;
+      const x = c.x + (k + .5) * u, y = c.y + (r + .5) * u;
+      let dx = x - px, dy = y - py; const d = Math.hypot(dx, dy) || 1; dx /= d; dy /= d;
+      const sp = 140 + Math.random() * 260 + (c.golden ? 120 : 0);
+      parts.push({type: 'px', x, y, vx: dx * sp + (Math.random() - .5) * 90, vy: dy * sp - 170 - Math.random() * 140,
+        life: 0, max: .55 + Math.random() * .4, size: u, color: ch === 'E' ? COL.eye : col, drag: .985});
+    }
+    // impact ring + speed lines (manga hit sparks)
+    parts.push({type: 'ring', x: px, y: py, life: 0, max: .3, r0: 6, r1: c.golden ? 70 : 44, color: col, w: c.golden ? 6 : 4});
+    const n = c.golden ? 12 : 8, off = Math.random() * Math.PI;
+    for (let i = 0; i < n; i++) {
+      const a = off + i / n * Math.PI * 2 + (Math.random() - .5) * .3;
+      parts.push({type: 'line', x: px, y: py, a, life: 0, max: .18 + Math.random() * .08, d0: 10, d1: (c.golden ? 70 : 46) + Math.random() * 18, color: i % 2 ? COL.ink : col});
+    }
+  }
+  function dust(x, y, n, spread = 1) {
+    for (let i = 0; i < n; i++) {
+      const a = Math.PI + Math.random() * Math.PI;
+      parts.push({type: 'px', x: x + (Math.random() - .5) * 20 * spread, y, vx: Math.cos(a) * (40 + Math.random() * 70) * spread, vy: Math.sin(a) * (50 + Math.random() * 80),
+        life: 0, max: .3 + Math.random() * .25, size: 2 + Math.round(Math.random() * 2), color: COL.dust, drag: .93, g: 300});
+    }
+  }
+  function stepParts(dt) {
+    for (let i = parts.length - 1; i >= 0; i--) {
+      const p = parts[i]; p.life += dt;
+      if (p.life >= p.max) { parts.splice(i, 1); continue; }
+      if (p.type === 'px') { p.vx *= p.drag; p.vy = p.vy * p.drag + (p.g || 1100) * dt; p.x += p.vx * dt; p.y += p.vy * dt; }
+    }
+  }
+  function drawParts() {
+    g.clearRect(0, 0, W, H);
+    for (const p of parts) {
+      const t = p.life / p.max, e = 1 - Math.pow(1 - t, 3);
+      if (p.type === 'px') {
+        const s = t > .7 ? p.size * (1 - (t - .7) / .3) : p.size;
+        g.fillStyle = p.color; g.fillRect(Math.round(p.x - s / 2), Math.round(p.y - s / 2), Math.ceil(s), Math.ceil(s));
+      } else if (p.type === 'ring') {
+        g.globalAlpha = 1 - t; g.strokeStyle = p.color; g.lineWidth = Math.max(.5, p.w * (1 - t));
+        g.beginPath(); g.arc(p.x, p.y, p.r0 + (p.r1 - p.r0) * e, 0, Math.PI * 2); g.stroke(); g.globalAlpha = 1;
+      } else if (p.type === 'line') {
+        const a = p.d0 + (p.d1 - p.d0) * e, b = p.d0 + (p.d1 - p.d0) * Math.max(0, e - .45 + t * .3);
+        g.strokeStyle = p.color; g.lineWidth = 3 * (1 - t) + .5; g.lineCap = 'square';
+        g.beginPath(); g.moveTo(p.x + Math.cos(p.a) * b, p.y + Math.sin(p.a) * b); g.lineTo(p.x + Math.cos(p.a) * a, p.y + Math.sin(p.a) * a); g.stroke();
+      }
+    }
+  }
+
+  /* ---------- Crabs ---------- */
+  const crabs = [];
+  const unit = () => (W < 480 ? 5 : 6);
+  function spawn() {
+    const golden = Math.random() < .09;
+    const u = unit() + (golden ? 1 : 0), w = 12 * u, h = 8 * u, pad = 10;
+    let x = 0, y = 0;
+    for (let tries = 0; tries < 10; tries++) {
+      x = pad + Math.random() * Math.max(1, W - w - pad * 2);
+      y = pad + 6 + Math.random() * Math.max(1, H - h - pad * 2 - 6);
+      if (!crabs.some(c => Math.abs(c.x - x) < w + 8 && Math.abs(c.y - y) < h + 8)) break;
+    }
+    const el = document.createElement('div');
+    el.className = 'crab' + (golden ? ' golden' : '');
+    el.style.width = w + 'px'; el.style.height = h + 'px';
+    el.innerHTML = '<div class="crab-body">' + crabSVG() + '</div>';
+    el.style.setProperty('--bd', (-Math.random() * 4).toFixed(2) + 's');
+    area.insertBefore(el, $('combo'));
+    const ramp = Math.min(1, state.elapsed / ROUND);
+    const c = {el, x, y, u, w, h, golden, state: 'alive', age: 0,
+      life: golden ? 1.15 : (1.9 - ramp * .55) + Math.random() * .35,
+      vx: 0, speed: (golden ? 120 : 40 + ramp * 55) + Math.random() * 30, decide: 0};
+    crabs.push(c); place(c); dust(x + w / 2, y + h, 5, .6);
+  }
+  function place(c) { c.el.style.transform = `translate3d(${c.x.toFixed(1)}px,${c.y.toFixed(1)}px,0)`; }
+  function stepCrab(c, dt) {
+    c.age += dt;
+    if (c.state !== 'alive') return;
+    if (c.age > .25) {
+      c.decide -= dt;
+      if (c.decide <= 0) { // crabs scuttle sideways, pause, change mind
+        const r = Math.random();
+        c.vx = r < .22 && !c.golden ? 0 : (Math.random() < .5 ? -1 : 1) * c.speed;
+        c.decide = .25 + Math.random() * .5;
+        c.el.classList.toggle('walking', c.vx !== 0);
+      }
+      c.x += c.vx * dt;
+      if (c.x < 6) { c.x = 6; c.vx = Math.abs(c.vx); }
+      if (c.x > W - c.w - 6) { c.x = W - c.w - 6; c.vx = -Math.abs(c.vx); }
+      place(c);
+    }
+    if (c.age > c.life) leave(c);
+  }
+  function leave(c) {
+    c.state = 'leaving'; c.el.classList.remove('walking'); c.el.classList.add('leaving');
+    dust(c.x + c.w / 2, c.y + c.h, 6, .8);
+    setTimeout(() => kill(c), 260);
+  }
+  function kill(c) { c.el.remove(); const i = crabs.indexOf(c); if (i >= 0) crabs.splice(i, 1); }
+
+  /* ---------- Juice: hitstop, shake, flash ---------- */
+  let freeze = 0, shakeAmp = 0;
+  function shake(a) { if (!REDUCED) shakeAmp = Math.max(shakeAmp, a); }
+  function floatTxt(x, y, text, cls = '') {
+    const f = document.createElement('div'); f.className = 'float-txt ' + cls; f.textContent = text;
+    f.style.left = x + 'px'; f.style.top = y + 'px'; area.appendChild(f); setTimeout(() => f.remove(), 800);
+  }
+  function hit(c, px, py) {
+    c.state = 'hit'; c.el.classList.remove('walking'); c.el.classList.add('hit');
+    state.combo++; state.comboT = COMBO_WIN; state.hits++;
+    state.maxCombo = Math.max(state.maxCombo, state.combo);
+    const pts = c.golden ? 10 : 1;
+    state.score += pts; state.tokens += pts; state.caught++;
+    const stop = c.golden ? .12 : .055 + Math.min(state.combo, 12) * .004;
+    freeze = Math.max(freeze, stop);
+    Sfx.hit(state.combo, c.golden);
+    if (navigator.vibrate) navigator.vibrate(c.golden ? [30, 25, 40] : 12);
+    shake((c.golden ? 11 : 4) + Math.min(state.combo, 15) * .35);
+    if (c.golden) restart($('flash'), 'go');
+    const cx = c.x + c.w / 2, cy = c.y + c.h / 2;
+    floatTxt(cx, c.y, '+' + pts, c.golden ? 'big' : '');
+    restart($('chip'), 'bump'); restart($('round-score'), 'pop');
+    comboUI(true);
+    if (state.combo % 10 === 0) milestone();
+    setTimeout(() => { shatter(c, px, py); kill(c); }, stop * 1000);
+    render(); persist();
+  }
+  function milestone() {
+    state.score += 5; state.tokens += 5;
+    $('banner-t').textContent = '连击 ' + state.combo; $('banner-s').textContent = '+5 Tokens';
+    restart($('banner'), 'go'); Sfx.milestone(); shake(10); restart($('flash'), 'go');
+    parts.push({type: 'ring', x: W / 2, y: H * .42, life: 0, max: .45, r0: 20, r1: Math.max(W, H) * .6, color: COL.crab, w: 5});
+  }
+  function miss(x, y) {
+    state.misses++;
+    if (state.combo >= 3) floatTxt(x, y, '连击中断', 'miss');
+    state.combo = 0; state.comboT = 0; comboUI(false);
+    Sfx.miss(); dust(x, y + 6, 6, .5);
+    parts.push({type: 'ring', x, y, life: 0, max: .22, r0: 3, r1: 18, color: COL.dust, w: 2});
+  }
+  function comboUI(bumped) {
+    const show = state.combo >= 2;
+    $('combo').classList.toggle('show', show);
+    $('combo').classList.toggle('hot', state.combo >= 10);
+    if (show && bumped) { $('combo-n').textContent = '×' + state.combo; restart($('combo-n'), 'pop'); }
+  }
+
+  /* ---------- Input: forgiving hit test, nearest crab wins ---------- */
+  area.addEventListener('pointerdown', e => {
+    if (!state.active) return;
+    e.preventDefault();
+    const r = area.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top;
+    let best = null, bd = 1e9;
+    for (const c of crabs) {
+      if (c.state !== 'alive') continue;
+      const dx = Math.abs(px - (c.x + c.w / 2)), dy = Math.abs(py - (c.y + c.h / 2));
+      if (dx < c.w / 2 + 14 && dy < c.h / 2 + 16) { const d = dx + dy; if (d < bd) { bd = d; best = c; } }
+    }
+    best ? hit(best, px, py) : miss(px, py);
+  });
+
+  /* ---------- Loop ---------- */
+  let last = performance.now();
+  function loop(now) {
+    let dt = Math.min(.05, (now - last) / 1000); last = now;
+    if (freeze > 0) { freeze -= dt; dt = 0; }         // hitstop: world holds its breath
+    if (state.active && dt > 0) {
+      state.elapsed += dt;
+      state.time = Math.max(0, ROUND - state.elapsed);
+      const sec = Math.ceil(state.time);
+      if (state.time <= 5 && sec !== state.lastSec && sec > 0) { state.lastSec = sec; Sfx.tick(sec === 1); restart($('timer'), 'tick'); }
+      if (state.comboT > 0) { state.comboT -= dt; if (state.comboT <= 0) { state.combo = 0; comboUI(false); } }
+      state.spawnIn -= dt;
+      const alive = crabs.filter(c => c.state === 'alive').length;
+      if (state.spawnIn <= 0 && alive < 6) {
+        spawn();
+        const ramp = Math.min(1, state.elapsed / ROUND);
+        state.spawnIn = (.62 - ramp * .26) + Math.random() * .22;
+      }
+      $('timebar').style.transform = `scaleX(${(state.time / ROUND).toFixed(4)})`;
+      $('timebar').classList.toggle('urgent', state.time <= 5);
+      if (state.time <= 0) stop();
+      render();
+    }
+    if (dt > 0) { for (const c of crabs.slice()) stepCrab(c, dt); stepParts(dt); }
+    $('combo-meter').style.transform = `scaleX(${Math.max(0, state.comboT / COMBO_WIN).toFixed(3)})`;
+    if (shakeAmp > .15) {
+      const a = shakeAmp; area.style.transform = `translate(${((Math.random() - .5) * 2 * a).toFixed(1)}px,${((Math.random() - .5) * 2 * a).toFixed(1)}px)`;
+      shakeAmp *= Math.pow(.0009, Math.max(dt, .016));
+    } else if (shakeAmp) { shakeAmp = 0; area.style.transform = ''; }
+    drawParts();
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+
+  function start() {
+    if (state.active) return;
+    Sfx.init(); Sfx.start();
+    Object.assign(state, {active: true, time: ROUND, elapsed: 0, score: 0, combo: 0, maxCombo: 0, comboT: 0, hits: 0, misses: 0, spawnIn: .15, lastSec: 99});
+    $('result').classList.remove('show'); $('hint').style.display = 'none';
+    $('start').disabled = true; $('start').textContent = '抓紧时间…';
+    crabs.slice().forEach(kill); parts.length = 0; comboUI(false);
+    render();
+  }
+  function stop() {
+    if (!state.active) return;
+    state.active = false; state.time = 0;
+    crabs.filter(c => c.state === 'alive').forEach(leave);
+    $('timebar').classList.remove('urgent'); $('timebar').style.transform = 'scaleX(0)';
+    state.combo = 0; comboUI(false);
+    const rec = state.score > state.best && state.score > 0;
+    if (rec) state.best = state.score;
+    Sfx.end(); persist();
+    setTimeout(() => {
+      $('start').disabled = false; $('start').textContent = '再来一局';
+      $('result-score').textContent = '+' + state.score + ' Token' + (state.score === 1 ? '' : 's');
+      $('result-title').textContent = state.score === 0 ? '螃蟹都溜了。' : state.score >= 40 ? '手起钳落。' : '抓得不错。';
+      $('r-combo').textContent = state.maxCombo;
+      const tot = state.hits + state.misses;
+      $('r-acc').textContent = (tot ? Math.round(state.hits / tot * 100) : 0) + '%';
+      $('r-best').textContent = state.best;
+      $('record').classList.toggle('show', rec);
+      $('result').classList.add('show');
+    }, 380);
+    render();
+  }
+
+  $('start').addEventListener('click', start);
+  $('again').addEventListener('click', start);
+  $('result').addEventListener('pointerdown', e => e.stopPropagation());
+  const sb = $('sound'); sb.classList.toggle('muted', !Sfx.on);
+  sb.addEventListener('click', () => { sb.classList.toggle('muted', !Sfx.toggle()); });
+  $('reset').addEventListener('click', () => {
+    if (state.active) return;
+    if (!confirm('确定清空累计 Tokens、抓获与最佳记录吗？')) return;
+    state.tokens = 0; state.caught = 0; state.score = 0; state.best = 0; persist(); render();
+  });
+  render();
+})();
+</script>
+</body>
+</html>
