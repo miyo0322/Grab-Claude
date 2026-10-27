@@ -12,6 +12,7 @@
   --line:rgba(31,30,29,.15);--line-soft:rgba(31,30,29,.08);--dot:rgba(31,30,29,.09);
   --clay:#d97757;--clay-dark:#c6613f;--crab:#d97757;--eye:#141413;--gold:#d9a23a;--gold-dark:#a87418;
   --sonnet:#2c84db;--opus:#d0453b;--track:rgba(31,30,29,.08);
+  --haiku:#4f9a78;--fable:#8a6fd3;--mythos:#1f1e1d;
   --danger:#b53333;--scrim:rgba(250,249,245,.86);--overlay:rgba(20,20,19,.32);
   --shadow:0 4px 24px rgba(0,0,0,.04),0 1px 2px rgba(0,0,0,.03);
   --serif:"Copernicus","Tiempos Headline",Georgia,"Times New Roman","Songti SC","STSong",serif;
@@ -21,6 +22,7 @@
   --bg:#262624;--surface:#30302e;--surface-2:#1f1e1d;--ink:#faf9f5;--ink2:#e5e4df;--muted:#a6a39b;--faint:#7c7a73;
   --line:rgba(222,220,209,.15);--line-soft:rgba(222,220,209,.08);--dot:rgba(222,220,209,.07);
   --sonnet:#5ba3eb;--opus:#e8685e;--track:rgba(222,220,209,.1);
+  --haiku:#6cbf98;--fable:#a891e6;--mythos:#f0eee6;
   --danger:#e06c6c;--scrim:rgba(38,38,36,.86);--overlay:rgba(0,0,0,.5);--shadow:0 4px 24px rgba(0,0,0,.25);
 }}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -95,10 +97,13 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
 .primary:active{transform:scale(.97)}
 .primary:disabled{opacity:.5;cursor:default;transform:none;background:var(--clay)}
 
-.pills{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:14px}
-.pill{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border:.5px solid var(--line);border-radius:8px;background:var(--surface);font-size:13px;color:var(--ink2)}
+.pills{display:flex;gap:8px;margin-top:14px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:1px}
+.pills::-webkit-scrollbar{display:none}
+.pills.more{-webkit-mask-image:linear-gradient(90deg,#000 85%,transparent);mask-image:linear-gradient(90deg,#000 85%,transparent)}
+.pills>:first-child{margin-left:auto}.pills>:last-child{margin-right:auto}
+.pill{flex-shrink:0;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border:.5px solid var(--line);border-radius:8px;background:var(--surface);font-size:13px;color:var(--ink2)}
 .pill i{width:7px;height:7px;border-radius:2px;background:var(--clay);display:inline-block}
-.pill i.g{background:var(--gold)}
+.pill i.k-haiku{background:var(--haiku)}.pill i.k-fable{background:var(--fable)}.pill i.k-opus{background:var(--gold)}.pill i.k-mythos{background:var(--mythos);box-shadow:0 0 0 1.5px var(--clay)}
 .note{font-size:12px;line-height:1.5;color:var(--faint);text-align:center;margin-top:12px}
 
 /* ===== in-play effects ===== */
@@ -114,14 +119,21 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
 .crab.hit .eyes{fill:var(--bg);animation:none;opacity:1}
 .crab.leaving .crab-body{animation:dig .24s cubic-bezier(.5,0,.8,.4) forwards}
 @keyframes dig{0%{transform:scale(1.12,.86)}100%{transform:translateY(30%) scale(.9,0);opacity:0}}
-.crab.golden{--crab:var(--gold)}
-.crab.golden:before,.crab.golden:after{content:"";position:absolute;width:5px;height:5px;background:var(--gold);animation:twinkle .5s steps(2) infinite}
-.crab.golden:before{left:-8px;top:-6px}
-.crab.golden:after{right:-8px;top:2px;animation-delay:-.25s}
+.crab.k-haiku{--crab:var(--haiku)}
+.crab.k-fable{--crab:var(--fable)}
+.crab.k-opus{--crab:var(--gold)}
+.crab.k-mythos{--crab:var(--mythos);--eye:var(--clay)}
+.crab.k-mythos .crab-body{filter:drop-shadow(0 0 6px rgba(217,119,87,.6))}
+.crab.k-mythos.hit .shell,.crab.k-mythos.hit .leg{fill:var(--clay)}
+.crab.sparkle:before,.crab.sparkle:after{content:"";position:absolute;width:5px;height:5px;background:var(--crab);animation:twinkle .5s steps(2) infinite}
+.crab.k-mythos:before,.crab.k-mythos:after{background:var(--clay)}
+.crab.sparkle:before{left:-8px;top:-6px}
+.crab.sparkle:after{right:-8px;top:2px;animation-delay:-.25s}
 @keyframes twinkle{50%{opacity:0}}
 
 .float-txt{position:absolute;z-index:4;pointer-events:none;font-weight:600;color:var(--clay-dark);font-size:18px;font-variant-numeric:tabular-nums;white-space:nowrap;transform:translate(-50%,-50%);animation:floatup .75s cubic-bezier(.2,.9,.3,1) forwards}
-.float-txt.big{font-size:26px;color:var(--gold-dark)}
+.float-txt.big{font-size:26px}
+.float-txt.huge{font-size:32px}
 .float-txt.miss{color:var(--faint);font-size:13px;font-weight:500}
 @keyframes floatup{0%{transform:translate(-50%,-50%) scale(.4)}22%{transform:translate(-50%,-90%) scale(1.25)}100%{transform:translate(-50%,-260%) scale(1);opacity:0}}
 
@@ -292,8 +304,8 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
 <header>
   <div class="brand"><span class="mark" data-crab></span><span>Claude</span></div>
   <div class="head-right">
-    <div class="token-chip" id="chip" role="button" tabindex="0" aria-label="查看用量"><span class="spark" data-burst></span><strong id="total-tokens">0</strong><span class="lbl">Tokens</span></div>
-    <button class="icon-btn" id="open-settings" aria-label="设置">
+    <div class="token-chip" id="chip" role="button" tabindex="0" aria-label="查看用量" data-i18n-aria="aria.usage"><span class="spark" data-burst></span><strong id="total-tokens">0</strong><span class="lbl">Tokens</span></div>
+    <button class="icon-btn" id="open-settings" aria-label="设置" data-i18n-aria="settings">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
     </button>
   </div>
@@ -301,46 +313,49 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
 <main>
   <section class="intro">
     <h1><span class="burst" data-burst></span><span id="greeting">你好</span></h1>
-    <p class="subtitle">Sonnet 和 Opus 会短暂现身，点中换取 Token。</p>
+    <p class="subtitle" data-i18n="sub"></p>
   </section>
   <section class="composer">
-    <div id="play-area" aria-label="抓 Claude 游戏区域">
+    <div id="play-area" aria-label="抓 Claude 游戏区域" data-i18n-aria="aria.play">
       <div id="timebar"></div>
       <canvas id="fx"></canvas>
       <div id="flash"></div>
-      <div class="play-hint" id="hint"><span class="mark" data-crab></span><span class="thinking">Claude 正在思考…</span></div>
-      <div id="combo"><div class="n" id="combo-n">0</div><div class="lbl">连击</div><div class="meter"><i id="combo-meter"></i></div></div>
+      <div class="play-hint" id="hint"><span class="mark" data-crab></span><span class="thinking" data-i18n="thinking"></span></div>
+      <div id="combo"><div class="n" id="combo-n">0</div><div class="lbl" data-i18n="combo"></div><div class="meter"><i id="combo-meter"></i></div></div>
       <div id="banner"><b id="banner-t"></b><span id="banner-s"></span></div>
       <div id="result">
         <div class="result-card">
           <span class="mark" data-crab></span>
           <h2 id="result-title">抓得不错。</h2>
           <div class="result-score" id="result-score">+0 Tokens</div>
-          <div class="record" id="record">新纪录</div>
+          <div class="record" id="record" data-i18n="record"></div>
           <div class="result-meta">
-            <div><b id="r-combo">0</b>最高连击</div>
-            <div><b id="r-acc">0%</b>命中率</div>
-            <div><b id="r-best">0</b>最佳单局</div>
+            <div><b id="r-combo">0</b><span data-i18n="m.combo"></span></div>
+            <div><b id="r-acc">0%</b><span data-i18n="m.acc"></span></div>
+            <div><b id="r-best">0</b><span data-i18n="m.best"></span></div>
           </div>
-          <button class="primary" id="again">再来一局</button>
+          <button class="primary" id="again" data-i18n="again"></button>
         </div>
       </div>
     </div>
     <div class="toolbar">
-      <div class="stats" aria-label="本局数据">
-        <div class="stat"><span class="stat-label">本局</span><span class="stat-value" id="round-score">0</span></div>
-        <div class="stat"><span class="stat-label">剩余</span><span class="stat-value" id="timer">20.0s</span></div>
-        <div class="stat"><span class="stat-label">累计抓获</span><span class="stat-value" id="total-caught">0</span></div>
+      <div class="stats" aria-label="本局数据" data-i18n-aria="aria.stats">
+        <div class="stat"><span class="stat-label" data-i18n="s.round"></span><span class="stat-value" id="round-score">0</span></div>
+        <div class="stat"><span class="stat-label" data-i18n="s.time"></span><span class="stat-value" id="timer">20.0s</span></div>
+        <div class="stat"><span class="stat-label" data-i18n="s.caught"></span><span class="stat-value" id="total-caught">0</span></div>
       </div>
-      <button class="primary" id="start"><span id="start-label">开始</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+      <button class="primary" id="start"><span id="start-label"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
     </div>
   </section>
-  <div class="pills" aria-label="计分规则">
+  <div class="pills" aria-label="计分规则" data-i18n-aria="aria.rules">
+    <span class="pill"><i class="k-haiku"></i>Haiku +2</span>
     <span class="pill"><i></i>Sonnet +1</span>
-    <span class="pill"><i class="g"></i>Opus +10</span>
-    <span class="pill"><i></i>每 10 连击 +5</span>
+    <span class="pill"><i class="k-fable"></i>Fable +5</span>
+    <span class="pill"><i class="k-opus"></i>Opus +10</span>
+    <span class="pill"><i class="k-mythos"></i>Mythos +50</span>
+    <span class="pill"><i></i><span data-i18n="p.combo"></span></span>
   </div>
-  <p class="note">Claude 可能会溜走。Tokens 仅为游戏积分，不计入 Claude 用量。</p>
+  <p class="note" data-i18n="note"></p>
   <div class="made-row"><span class="made"><span class="spark" data-burst></span>Created with Opus 5.5</span></div>
 </main>
 </div>
@@ -348,31 +363,31 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
 <div class="modal" id="settings" role="dialog" aria-modal="true" aria-labelledby="settings-title" hidden>
   <div class="sheet">
     <div class="sheet-head">
-      <h2 id="settings-title">设置</h2>
-      <button class="icon-btn" id="close-settings" aria-label="关闭"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      <h2 id="settings-title" data-i18n="settings"></h2>
+      <button class="icon-btn" id="close-settings" aria-label="关闭" data-i18n-aria="aria.close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
     </div>
     <div class="row stack">
-      <div><div class="row-title">地区</div><div class="row-desc">Claude 的可用性取决于你所在的国家或地区。</div></div>
-      <div class="segmented" role="radiogroup" aria-label="地区">
-        <button role="radio" data-region="us">美国</button>
-        <button role="radio" data-region="cn">中国</button>
+      <div><div class="row-title" data-i18n="region"></div><div class="row-desc" data-i18n="region.d"></div></div>
+      <div class="segmented" role="radiogroup" aria-label="地区" data-i18n-aria="region">
+        <button role="radio" data-region="us" data-i18n="us"></button>
+        <button role="radio" data-region="cn" data-i18n="cn"></button>
       </div>
     </div>
     <div class="row">
-      <div><div class="row-title">音效</div><div class="row-desc">抓中、连击和倒计时的声音。</div></div>
-      <button class="switch" id="sw-sound" role="switch" aria-label="音效"></button>
+      <div><div class="row-title" data-i18n="sound"></div><div class="row-desc" data-i18n="sound.d"></div></div>
+      <button class="switch" id="sw-sound" role="switch" aria-label="音效" data-i18n-aria="sound"></button>
     </div>
     <div class="row">
-      <div><div class="row-title">触感反馈</div><div class="row-desc">在支持的设备上，抓中时轻微震动。</div></div>
-      <button class="switch" id="sw-haptic" role="switch" aria-label="触感反馈"></button>
+      <div><div class="row-title" data-i18n="haptic"></div><div class="row-desc" data-i18n="haptic.d"></div></div>
+      <button class="switch" id="sw-haptic" role="switch" aria-label="触感反馈" data-i18n-aria="haptic"></button>
     </div>
     <div class="row">
-      <div><div class="row-title">用量</div><div class="row-desc">Sonnet 与 Opus 的每日和每周用量。</div></div>
-      <button class="btn-outline" id="open-usage">查看</button>
+      <div><div class="row-title" data-i18n="usage"></div><div class="row-desc" data-i18n="usage.d"></div></div>
+      <button class="btn-outline" id="open-usage" data-i18n="view"></button>
     </div>
     <div class="row">
-      <div><div class="row-title">重置记录</div><div class="row-desc">清空累计 Tokens、抓获数和最佳记录。</div></div>
-      <button class="btn-outline danger" id="reset">重置</button>
+      <div><div class="row-title" data-i18n="reset"></div><div class="row-desc" data-i18n="reset.d"></div></div>
+      <button class="btn-outline danger" id="reset" data-i18n="reset.btn"></button>
     </div>
     <div class="made-row"><span class="made"><span class="spark" data-burst></span>Created with Opus 5.5</span></div>
   </div>
@@ -380,15 +395,15 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
 
 <div id="usage" role="dialog" aria-labelledby="usage-title" hidden>
   <div class="u-top">
-    <button class="icon-btn" id="close-usage" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-    <h2 id="usage-title">用量</h2>
+    <button class="icon-btn" id="close-usage" aria-label="返回" data-i18n-aria="aria.back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <h2 id="usage-title" data-i18n="usage"></h2>
   </div>
   <div class="u-body">
     <div class="u-wrap">
       <section class="u-card">
-        <div class="u-head"><h3>套餐用量限额</h3><span class="badge">Max</span></div>
-        <p class="u-desc">Sonnet 和 Opus 的用量分别计算。达到上限后仍可继续游玩，额度会按时重置。</p>
-        <div class="u-sec">每日限额</div>
+        <div class="u-head"><h3 data-i18n="u.plan"></h3><span class="badge">Max</span></div>
+        <p class="u-desc" data-i18n="u.desc"></p>
+        <div class="u-sec" data-i18n="u.daily"></div>
         <div class="u-row" data-scope="d" data-model="sonnet">
           <div><div class="u-name"><i></i>Sonnet</div><div class="u-reset"></div></div>
           <div class="bar" role="progressbar" aria-label="Sonnet" aria-valuemin="0" aria-valuemax="100"><i></i></div>
@@ -400,7 +415,7 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
           <div class="u-pct"></div>
         </div>
         <div class="u-sep"></div>
-        <div class="u-sec">每周限额</div>
+        <div class="u-sec" data-i18n="u.weekly"></div>
         <div class="u-row" data-scope="w" data-model="sonnet">
           <div><div class="u-name"><i></i>Sonnet</div><div class="u-reset"></div></div>
           <div class="bar" role="progressbar" aria-label="Sonnet" aria-valuemin="0" aria-valuemax="100"><i></i></div>
@@ -412,8 +427,8 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
           <div class="u-pct"></div>
         </div>
       </section>
-      <div class="u-foot"><span id="usage-updated">最后更新：刚刚</span>
-        <button class="icon-btn" id="refresh-usage" aria-label="刷新"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg></button>
+      <div class="u-foot"><span id="usage-updated"></span>
+        <button class="icon-btn" id="refresh-usage" aria-label="刷新" data-i18n-aria="aria.refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg></button>
       </div>
     </div>
   </div>
@@ -424,13 +439,13 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
   <div class="ban-body">
     <div class="ban-inner">
       <span class="burst" data-burst></span>
-      <h1 id="onboard-title">开始之前</h1>
-      <p>请选择你所在的国家或地区。Claude 的可用性因地区而异，之后可在设置中更改。</p>
-      <div class="choices" role="radiogroup" aria-label="国家或地区">
-        <button class="choice" role="radio" aria-checked="false" data-pick="us"><div><div class="t">美国</div><div class="d">United States</div></div><span class="radio"></span></button>
-        <button class="choice" role="radio" aria-checked="false" data-pick="cn"><div><div class="t">中国</div><div class="d">中国大陆</div></div><span class="radio"></span></button>
+      <h1 id="onboard-title" data-i18n="ob.title"></h1>
+      <p data-i18n="ob.desc"></p>
+      <div class="choices" role="radiogroup" aria-label="国家或地区" data-i18n-aria="region">
+        <button class="choice" role="radio" aria-checked="false" data-pick="us"><div><div class="t" data-i18n="us"></div><div class="d">English</div></div><span class="radio"></span></button>
+        <button class="choice" role="radio" aria-checked="false" data-pick="cn"><div><div class="t" data-i18n="cn"></div><div class="d">简体中文</div></div><span class="radio"></span></button>
       </div>
-      <button class="btn-dark" id="onboard-go" disabled>继续</button>
+      <button class="btn-dark" id="onboard-go" data-i18n="continue" disabled></button>
       <div class="made-row" style="margin-top:22px"><span class="made"><span class="spark" data-burst></span>Created with Opus 5.5</span></div>
     </div>
   </div>
@@ -457,6 +472,63 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
   const area = $('play-area'), cv = $('fx'), g = cv.getContext('2d');
   const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  /* ---------- Copy: US region plays in English, China in Chinese ---------- */
+  const I18N = {
+    zh: {
+      sub: '各个 Claude 模型会短暂现身，点中换取 Token。', thinking: 'Claude 正在思考…', combo: '连击', record: '新纪录',
+      'm.combo': '最高连击', 'm.acc': '命中率', 'm.best': '最佳单局', again: '再来一局', start: '开始', playing: '专注中…',
+      's.round': '本局', 's.time': '剩余', 's.caught': '累计抓获', 'p.combo': '每 10 连击 +5',
+      note: 'Claude 可能会溜走。Tokens 仅为游戏积分，不计入 Claude 用量。',
+      settings: '设置', region: '地区', 'region.d': 'Claude 的可用性取决于你所在的国家或地区，界面语言也随之切换。', us: '美国', cn: '中国',
+      sound: '音效', 'sound.d': '抓中、连击和倒计时的声音。', haptic: '触感反馈', 'haptic.d': '在支持的设备上，抓中时轻微震动。',
+      usage: '用量', 'usage.d': 'Sonnet 与 Opus 的每日和每周用量。', view: '查看',
+      reset: '重置记录', 'reset.d': '清空累计 Tokens、抓获数和最佳记录。', 'reset.btn': '重置', 'reset.confirm': '清空累计 Tokens、抓获数和最佳记录？此操作无法撤销。',
+      'u.plan': '套餐用量限额', 'u.desc': 'Sonnet 和 Opus 的用量分别计算。达到上限后仍可继续游玩，额度会按时重置。', 'u.daily': '每日限额', 'u.weekly': '每周限额',
+      'u.in': (h, m) => (h ? h + ' 小时 ' : '') + m + ' 分钟后重置', 'u.week': '周一 00:00 重置', 'u.used': p => p + '% 已使用',
+      'u.updated': m => '最后更新：' + (m < 1 ? '刚刚' : m + ' 分钟前'),
+      'ob.title': '开始之前', 'ob.desc': '请选择你所在的国家或地区。Claude 的可用性因地区而异，之后可在设置中更改。', continue: '继续',
+      miss: '连击中断', banner: n => '连击 ' + n,
+      greet: h => (h < 5 ? '夜深了' : h < 11 ? '早上好' : h < 13 ? '中午好' : h < 18 ? '下午好' : '晚上好') + '，来抓 Claude 吧',
+      title: s => s === 0 ? '这次 Claude 快了一步。' : s >= 70 ? '比 Claude 想得还快。' : s >= 40 ? '眼疾手快。' : s >= 15 ? '抓得不错。' : '不错的开始。',
+      'aria.usage': '查看用量', 'aria.play': '抓 Claude 游戏区域', 'aria.stats': '本局数据', 'aria.rules': '计分规则', 'aria.close': '关闭', 'aria.back': '返回', 'aria.refresh': '刷新'
+    },
+    en: {
+      sub: 'Catch Claude models before they slip away.', thinking: 'Claude is thinking…', combo: 'COMBO', record: 'New best',
+      'm.combo': 'Best combo', 'm.acc': 'Accuracy', 'm.best': 'Best round', again: 'Play again', start: 'Start', playing: 'Focusing…',
+      's.round': 'Round', 's.time': 'Time', 's.caught': 'Caught', 'p.combo': '+5 every 10 combo',
+      note: 'Claude can slip away. Tokens are game points and don’t count toward Claude usage.',
+      settings: 'Settings', region: 'Region', 'region.d': 'Claude’s availability depends on your country or region. This also sets the language.', us: 'United States', cn: 'China',
+      sound: 'Sound effects', 'sound.d': 'Sounds for catches, combos and the countdown.', haptic: 'Haptics', 'haptic.d': 'A light tap on supported devices when you catch one.',
+      usage: 'Usage', 'usage.d': 'Daily and weekly usage for Sonnet and Opus.', view: 'View',
+      reset: 'Reset records', 'reset.d': 'Clear total tokens, catches and your best round.', 'reset.btn': 'Reset', 'reset.confirm': 'Clear total tokens, catches and your best round? This can’t be undone.',
+      'u.plan': 'Plan usage limits', 'u.desc': 'Sonnet and Opus are tracked separately. You can keep playing past a limit; it resets on schedule.', 'u.daily': 'Daily limits', 'u.weekly': 'Weekly limits',
+      'u.in': (h, m) => 'Resets in ' + (h ? h + ' hr ' : '') + m + ' min', 'u.week': 'Resets Mon 12:00 AM', 'u.used': p => p + '% used',
+      'u.updated': m => 'Last updated: ' + (m < 1 ? 'less than a minute ago' : m + ' min ago'),
+      'ob.title': 'Before you begin', 'ob.desc': 'Choose your country or region. Claude’s availability varies by region, and you can change this later in Settings.', continue: 'Continue',
+      miss: 'Combo lost', banner: n => 'Combo ' + n,
+      greet: h => h < 5 ? 'Up late?' : h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening',
+      title: s => s === 0 ? 'Claude was quicker this time.' : s >= 70 ? 'Faster than Claude can think.' : s >= 40 ? 'Sharp reflexes.' : s >= 15 ? 'Nicely caught.' : 'A good start.',
+      'aria.usage': 'View usage', 'aria.play': 'Grab Claude play area', 'aria.stats': 'Round stats', 'aria.rules': 'Scoring', 'aria.close': 'Close', 'aria.back': 'Back', 'aria.refresh': 'Refresh'
+    }
+  };
+  let lang = /^zh/i.test(navigator.language || '') ? 'zh' : 'en';
+  const t = (k, ...a) => { const v = I18N[lang][k]; return typeof v === 'function' ? v(...a) : v; };
+
+  /* ---------- Models: each kind of Claude that can pop up ---------- */
+  // p = spawn chance (sonnet fills the rest), du = size offset in pixels-per-cell, tier drives the juice
+  const KINDS = {
+    mythos: {p: .006, pts: 50, du: 2, tier: 3, name: 'Mythos'},
+    opus:   {p: .07,  pts: 10, du: 1, tier: 2, name: 'Opus'},
+    fable:  {p: .06,  pts: 5,  du: 0, tier: 1, name: 'Fable', life: 1.15, speed: .8},
+    haiku:  {p: .18,  pts: 2,  du: -1, tier: 0, name: 'Haiku', life: .7, speed: 1.6},
+    sonnet: {p: 1,    pts: 1,  du: 0, tier: 0, name: 'Sonnet', life: 1, speed: 1}
+  };
+  function pickKind() {
+    let r = Math.random();
+    for (const k in KINDS) { if (r < KINDS[k].p) return k; r -= KINDS[k].p; }
+    return 'sonnet';
+  }
+
   /* ---------- Model: Claude Code crab, 12×8, measured pixel-for-pixel ---------- */
   const GRID = [
     '..########..',
@@ -482,7 +554,9 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
       return `<path d="M${(12 + Math.cos(a) * 2.2).toFixed(2)} ${(12 + Math.sin(a) * 2.2).toFixed(2)}L${(12 + Math.cos(a) * l).toFixed(2)} ${(12 + Math.sin(a) * l).toFixed(2)}"/>`; }).join('') + '</svg>';
   document.querySelectorAll('[data-burst]').forEach(n => n.innerHTML = BURST);
   const CSSV = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-  const COL = {crab: CSSV('--crab'), eye: CSSV('--eye'), gold: CSSV('--gold'), ink: CSSV('--ink'), dust: '#d9d3c7'};
+  const COL = {crab: CSSV('--crab'), eye: CSSV('--eye'), gold: CSSV('--gold'), ink: CSSV('--ink'), clay: CSSV('--clay'), dust: '#d9d3c7',
+    sonnet: CSSV('--crab'), haiku: CSSV('--haiku'), fable: CSSV('--fable'), opus: CSSV('--gold'), mythos: CSSV('--mythos')};
+  const KCSS = {sonnet: '--clay-dark', haiku: '--haiku', fable: '--fable', opus: '--gold-dark', mythos: '--clay'};
 
   /* ---------- Sound ---------- */
   const Sfx = (() => {
@@ -516,15 +590,18 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
       init,
       get on() { return on; },
       set(v) { on = v; try { localStorage.setItem('crabcatcher_sfx', on ? '1' : '0'); } catch (_) {} },
-      hit(combo, golden) {
+      hit(combo, tier) {
         const s = Math.min(combo - 1, 14);
         tone('sine', 210, 48, .14, .95);          // body thump
         noise(.045, .55, 3000);                   // shell crack
         noise(.09, .25, 700);                     // crunch
         tone('square', 392 * st(s), null, .055, .06, .004); // rising combo pip
-        if (golden) [0, 4, 7, 12, 16].forEach((n, i) => tone('triangle', 784 * st(n), null, .18, .16, .06 + i * .05));
+        if (tier === 1) [0, 4, 7].forEach((n, i) => tone('triangle', 659 * st(n), null, .14, .12, .05 + i * .05));
+        if (tier >= 2) [0, 4, 7, 12, 16].forEach((n, i) => tone('triangle', 784 * st(n), null, .18, .16, .06 + i * .05));
+        if (tier >= 3) { tone('sine', 90, 40, .5, .7, .02); [19, 24, 28, 31].forEach((n, i) => tone('sine', 784 * st(n), null, .3, .1, .32 + i * .07)); noise(.5, .12, 7000, .3); }
       },
       miss() { tone('sine', 140, 80, .08, .22); noise(.03, .1, 500); },
+      rare() { [0, 7, 12, 19, 24].forEach((n, i) => tone('sine', 1046 * st(n), null, .16, .06, i * .045)); },
       tick(last) { tone('square', last ? 1568 : 1175, null, .035, .045); },
       milestone() { [0, 7, 12, 19].forEach((n, i) => tone('triangle', 523 * st(n), null, .22, .15, i * .065)); noise(.25, .12, 6000, .2); },
       end() { tone('triangle', 659, null, .2, .14); tone('triangle', 988, null, .35, .12, .12); },
@@ -558,7 +635,7 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
       get on() { return on; },
       set(v) { on = v; try { localStorage.setItem('grabclaude_haptics', on ? '1' : '0'); } catch (_) {} },
       light() { pulse(8, 1); },
-      hit(golden) { golden ? pulse([30, 25, 40], 3, 70) : pulse(12, 1); },
+      hit(tier) { tier >= 3 ? pulse([40, 30, 40, 30, 70], 5, 60) : tier === 2 ? pulse([30, 25, 40], 3, 70) : tier === 1 ? pulse([15, 30, 20], 2, 70) : pulse(12, 1); },
       milestone() { pulse([20, 40, 20, 40, 45], 4, 80); },
       miss() { pulse(6, 1); }
     };
@@ -594,24 +671,28 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
     g.setTransform(DPR, 0, 0, DPR, 0, 0); g.imageSmoothingEnabled = false;
   }
   new ResizeObserver(resize).observe(area); resize();
+  // fade the rule pills' right edge when they overflow and scroll sideways
+  const pills = document.querySelector('.pills');
+  const pillFade = () => pills.classList.toggle('more', pills.scrollLeft + pills.clientWidth < pills.scrollWidth - 4);
+  new ResizeObserver(pillFade).observe(pills); pills.addEventListener('scroll', pillFade, {passive: true});
 
   const parts = [];   // {type, x,y,vx,vy,life,max,size,color,...}
   function shatter(c, px, py) {
-    const u = c.u, col = c.golden ? COL.gold : COL.crab;
+    const u = c.u, col = COL[c.kind], tier = KINDS[c.kind].tier;
     for (let r = 0; r < 8; r++) for (let k = 0; k < 12; k++) {
       const ch = GRID[r][k]; if (ch === '.') continue;
       const x = c.x + (k + .5) * u, y = c.y + (r + .5) * u;
       let dx = x - px, dy = y - py; const d = Math.hypot(dx, dy) || 1; dx /= d; dy /= d;
-      const sp = 140 + Math.random() * 260 + (c.golden ? 120 : 0);
+      const sp = 140 + Math.random() * 260 + tier * 60;
       parts.push({type: 'px', x, y, vx: dx * sp + (Math.random() - .5) * 90, vy: dy * sp - 170 - Math.random() * 140,
-        life: 0, max: .55 + Math.random() * .4, size: u, color: ch === 'E' ? COL.eye : col, drag: .985});
+        life: 0, max: .55 + Math.random() * .4, size: u, color: ch === 'E' ? (c.kind === 'mythos' ? COL.clay : COL.eye) : col, drag: .985});
     }
     // impact ring + speed lines (manga hit sparks)
-    parts.push({type: 'ring', x: px, y: py, life: 0, max: .3, r0: 6, r1: c.golden ? 70 : 44, color: col, w: c.golden ? 6 : 4});
-    const n = c.golden ? 12 : 8, off = Math.random() * Math.PI;
+    parts.push({type: 'ring', x: px, y: py, life: 0, max: .3, r0: 6, r1: 44 + tier * 13, color: col, w: 4 + tier});
+    const n = 8 + tier * 2, off = Math.random() * Math.PI;
     for (let i = 0; i < n; i++) {
       const a = off + i / n * Math.PI * 2 + (Math.random() - .5) * .3;
-      parts.push({type: 'line', x: px, y: py, a, life: 0, max: .18 + Math.random() * .08, d0: 10, d1: (c.golden ? 70 : 46) + Math.random() * 18, color: i % 2 ? COL.ink : col});
+      parts.push({type: 'line', x: px, y: py, a, life: 0, max: .18 + Math.random() * .08, d0: 10, d1: 46 + tier * 13 + Math.random() * 18, color: i % 2 ? COL.ink : col});
     }
   }
   function dust(x, y, n, spread = 1) {
@@ -654,8 +735,8 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
   const maxAlive = () => { const u = unit(); return Math.max(3, Math.min(6, Math.floor(W * H / (96 * u * u * 7)))); };
   const comboRect = () => { const r = $('combo').getBoundingClientRect(), a = area.getBoundingClientRect(); return {x: r.left - a.left - 8, y: r.top - a.top - 8, w: r.width + 16, h: r.height + 16}; };
   function spawn() {
-    const golden = Math.random() < .09;
-    const u = unit() + (golden ? 1 : 0), w = 12 * u, h = 8 * u, pad = 10;
+    const kind = pickKind(), K = KINDS[kind];
+    const u = Math.max(4, unit() + K.du), w = 12 * u, h = 8 * u, pad = 10;
     let x = 0, y = 0;
     const hud = comboRect();
     for (let tries = 0; tries < 14; tries++) {
@@ -665,15 +746,18 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
       if (!underHud && !crabs.some(c => Math.abs(c.x - x) < w + 8 && Math.abs(c.y - y) < h + 8)) break;
     }
     const el = document.createElement('div');
-    el.className = 'crab' + (golden ? ' golden' : '');
+    el.className = 'crab k-' + kind + (K.tier >= 2 ? ' sparkle' : '');
     el.style.width = w + 'px'; el.style.height = h + 'px';
     el.innerHTML = '<div class="crab-body">' + crabSVG() + '</div>';
     el.style.setProperty('--bd', (-Math.random() * 4).toFixed(2) + 's');
     area.insertBefore(el, $('combo'));
     const ramp = Math.min(1, state.elapsed / ROUND);
-    const c = {el, x, y, u, w, h, golden, state: 'alive', age: 0,
-      life: golden ? 1.15 : (1.9 - ramp * .55) + Math.random() * .35,
-      vx: 0, speed: ((golden ? 120 : 40 + ramp * 55) + Math.random() * 30) * speedK(), decide: 0};
+    // rare kinds keep a fixed short life and quick feet; the rest speed up as the round ramps
+    const life = kind === 'mythos' ? .95 : kind === 'opus' ? 1.15 : ((1.9 - ramp * .55) + Math.random() * .35) * K.life;
+    const base = kind === 'mythos' ? 150 : kind === 'opus' ? 120 : (40 + ramp * 55) * K.speed;
+    const c = {el, x, y, u, w, h, kind, rare: K.tier >= 2, state: 'alive', age: 0, life,
+      vx: 0, speed: (base + Math.random() * 30) * speedK(), decide: 0};
+    if (kind === 'mythos') Sfx.rare();
     crabs.push(c); place(c); dust(x + w / 2, y + h, 5, .6);
   }
   function place(c) { c.el.style.transform = `translate3d(${c.x.toFixed(1)}px,${c.y.toFixed(1)}px,0)`; }
@@ -684,7 +768,7 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
       c.decide -= dt;
       if (c.decide <= 0) { // crabs scuttle sideways, pause, change mind
         const r = Math.random();
-        c.vx = r < .22 && !c.golden ? 0 : (Math.random() < .5 ? -1 : 1) * c.speed;
+        c.vx = r < .22 && !c.rare ? 0 : (Math.random() < .5 ? -1 : 1) * c.speed;
         c.decide = .25 + Math.random() * .5;
         c.el.classList.toggle('walking', c.vx !== 0);
       }
@@ -706,24 +790,30 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
   let freeze = 0, shakeAmp = 0;
   function shake(a) { if (!REDUCED) shakeAmp = Math.max(shakeAmp, a); }
   function floatTxt(x, y, text, cls = '') {
+    x = Math.min(Math.max(x, 56), W - 56); y = Math.max(y, 34);   // keep labels inside the card
     const f = document.createElement('div'); f.className = 'float-txt ' + cls; f.textContent = text;
     f.style.left = x + 'px'; f.style.top = y + 'px'; area.appendChild(f); setTimeout(() => f.remove(), 800);
+    return f;
   }
   function hit(c, px, py) {
     c.state = 'hit'; c.el.classList.remove('walking'); c.el.classList.add('hit');
     state.combo++; state.comboT = COMBO_WIN; state.hits++;
     state.maxCombo = Math.max(state.maxCombo, state.combo);
-    const pts = c.golden ? 10 : 1;
+    const K = KINDS[c.kind], pts = K.pts, tier = K.tier;
     state.score += pts; state.tokens += pts; state.caught++;
-    countUsage(c.golden ? 'opus' : 'sonnet');
-    const stop = c.golden ? .12 : .055 + Math.min(state.combo, 12) * .004;
+    countUsage(c.kind);
+    const stop = [.055 + Math.min(state.combo, 12) * .004, .08, .12, .2][tier];
     freeze = Math.max(freeze, stop);
-    Sfx.hit(state.combo, c.golden);
-    if (state.combo % 10 === 0) Haptics.milestone(); else Haptics.hit(c.golden);
-    shake((c.golden ? 11 : 4) + Math.min(state.combo, 15) * .35);
-    if (c.golden) restart($('flash'), 'go');
-    const cx = c.x + c.w / 2, cy = c.y + c.h / 2;
-    floatTxt(cx, c.y, (c.golden ? 'Opus +' : '+') + pts, c.golden ? 'big' : '');
+    Sfx.hit(state.combo, tier);
+    if (state.combo % 10 === 0) Haptics.milestone(); else Haptics.hit(tier);
+    shake([4, 7, 11, 16][tier] + Math.min(state.combo, 15) * .35);
+    if (tier >= 2) restart($('flash'), 'go');
+    const cx = c.x + c.w / 2;
+    const ft = floatTxt(cx, c.y, (c.kind === 'sonnet' ? '+' : K.name + ' +') + pts, tier >= 3 ? 'huge' : tier >= 1 ? 'big' : '');
+    ft.style.color = `var(${KCSS[c.kind]})`;
+    if (c.kind === 'mythos' && state.combo % 10) {
+      $('banner-t').textContent = 'Mythos'; $('banner-s').textContent = '+50 Tokens'; restart($('banner'), 'go');
+    }
     restart($('chip'), 'bump'); restart($('round-score'), 'pop');
     comboUI(true);
     if (state.combo % 10 === 0) milestone();
@@ -732,13 +822,13 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
   }
   function milestone() {
     state.score += 5; state.tokens += 5;
-    $('banner-t').textContent = '连击 ' + state.combo; $('banner-s').textContent = '+5 Tokens';
+    $('banner-t').textContent = t('banner', state.combo); $('banner-s').textContent = '+5 Tokens';
     restart($('banner'), 'go'); Sfx.milestone(); shake(10); restart($('flash'), 'go');
     parts.push({type: 'ring', x: W / 2, y: H * .42, life: 0, max: .45, r0: 20, r1: Math.max(W, H) * .6, color: COL.crab, w: 5});
   }
   function miss(x, y) {
     state.misses++;
-    if (state.combo >= 3) floatTxt(x, y, '连击中断', 'miss');
+    if (state.combo >= 3) floatTxt(x, y, t('miss'), 'miss');
     state.combo = 0; state.comboT = 0; comboUI(false);
     Sfx.miss(); Haptics.miss(); dust(x, y + 6, 6, .5);
     parts.push({type: 'ring', x, y, life: 0, max: .22, r0: 3, r1: 18, color: COL.dust, w: 2});
@@ -804,7 +894,7 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
     Sfx.init(); Sfx.start(); Haptics.light();
     Object.assign(state, {active: true, time: ROUND, elapsed: 0, score: 0, combo: 0, maxCombo: 0, comboT: 0, hits: 0, misses: 0, spawnIn: .15, lastSec: 99});
     $('result').classList.remove('show'); $('hint').style.display = 'none';
-    $('start').disabled = true; $('start-label').textContent = '专注中…'; $('open-settings').disabled = true;
+    startKey = 'playing'; $('start').disabled = true; $('start-label').textContent = t('playing'); $('open-settings').disabled = true;
     crabs.slice().forEach(kill); parts.length = 0; comboUI(false);
     render();
   }
@@ -818,9 +908,9 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
     if (rec) state.best = state.score;
     Sfx.end(); persist();
     setTimeout(() => {
-      $('start').disabled = false; $('start-label').textContent = '再来一局'; $('open-settings').disabled = false;
+      startKey = 'again'; $('start').disabled = false; $('start-label').textContent = t('again'); $('open-settings').disabled = false;
       $('result-score').textContent = '+' + state.score + ' Token' + (state.score === 1 ? '' : 's');
-      $('result-title').textContent = state.score === 0 ? '这次 Claude 快了一步。' : state.score >= 70 ? '比 Claude 想得还快。' : state.score >= 40 ? '眼疾手快。' : state.score >= 15 ? '抓得不错。' : '不错的开始。';
+      $('result-title').textContent = t('title', state.score);
       $('r-combo').textContent = state.maxCombo;
       const tot = state.hits + state.misses;
       $('r-acc').textContent = (tot ? Math.round(state.hits / tot * 100) : 0) + '%';
@@ -836,7 +926,7 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
   $('result').addEventListener('pointerdown', e => e.stopPropagation());
   $('reset').addEventListener('click', () => {
     if (state.active) return;
-    if (!confirm('清空累计 Tokens、抓获数和最佳记录？此操作无法撤销。')) return;
+    if (!confirm(t('reset.confirm'))) return;
     state.tokens = 0; state.caught = 0; state.score = 0; state.best = 0; persist(); render();
   });
 
@@ -852,6 +942,7 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
     if (usage.week !== wk) { usage.week = wk; usage.w = {sonnet: 0, opus: 0}; }
   }
   function countUsage(model) {
+    if (!LIMITS.d[model]) return;   // only Sonnet and Opus have plan limits
     rollUsage(); usage.d[model]++; usage.w[model]++;
     try { localStorage.setItem('grabclaude_usage', JSON.stringify(usage)); } catch (_) {}
   }
@@ -860,17 +951,17 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
     rollUsage(); usageAt = Date.now();
     const now = new Date(), mid = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
     const left = Math.max(1, Math.ceil((mid - now) / 60000)), h = Math.floor(left / 60), m = left % 60;
-    const dayReset = (h ? h + ' 小时 ' : '') + m + ' 分钟后重置';
+    const dayReset = t('u.in', h, m);
     document.querySelectorAll('.u-row').forEach(row => {
       const sc = row.dataset.scope, md = row.dataset.model, used = usage[sc][md], lim = LIMITS[sc][md];
       const pct = Math.min(100, Math.round(used / lim * 100));
-      row.querySelector('.u-reset').textContent = sc === 'd' ? dayReset : '周一 00:00 重置';
+      row.querySelector('.u-reset').textContent = sc === 'd' ? dayReset : t('u.week');
       row.querySelector('.bar i').style.width = pct + '%';
       row.querySelector('.bar').setAttribute('aria-valuenow', pct);
-      row.querySelector('.u-pct').textContent = pct + '% 已使用';
+      row.querySelector('.u-pct').textContent = t('u.used', pct);
       row.title = used + ' / ' + lim;
     });
-    $('usage-updated').textContent = '最后更新：刚刚';
+    $('usage-updated').textContent = t('u.updated', 0);
   }
   function openUsage() {
     if (state.active) return;
@@ -888,12 +979,21 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
   setInterval(() => {
     if ($('usage').hidden || !usageAt) return;
     const min = Math.floor((Date.now() - usageAt) / 60000);
-    $('usage-updated').textContent = '最后更新：' + (min < 1 ? '刚刚' : min + ' 分钟前');
+    $('usage-updated').textContent = t('u.updated', min);
   }, 15000);
 
   /* ---------- Greeting ---------- */
-  const hr = new Date().getHours();
-  $('greeting').textContent = (hr < 5 ? '夜深了' : hr < 11 ? '早上好' : hr < 13 ? '中午好' : hr < 18 ? '下午好' : '晚上好') + '，来抓 Claude 吧';
+  let startKey = 'start';
+  function applyLang() {
+    document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+    document.querySelectorAll('[data-i18n]').forEach(n => n.textContent = t(n.dataset.i18n));
+    document.querySelectorAll('[data-i18n-aria]').forEach(n => n.setAttribute('aria-label', t(n.dataset.i18nAria)));
+    $('greeting').textContent = t('greet', new Date().getHours());
+    $('start-label').textContent = t(startKey);
+    if ($('result').classList.contains('show')) $('result-title').textContent = t('title', state.score);
+    if (!$('usage').hidden) renderUsage();
+  }
+  const setLangFor = rg => { lang = rg === 'us' ? 'en' : 'zh'; applyLang(); };
 
   /* ---------- Settings ---------- */
   let region = null;   // null until the player picks one on first run
@@ -918,7 +1018,7 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
     if (b.dataset.region === region) return;
     region = b.dataset.region;
     try { localStorage.setItem('grabclaude_region', region); } catch (_) {}
-    syncSettings(); Haptics.light();
+    setLangFor(region); syncSettings(); Haptics.light();
     if (region === 'cn') { closeSettings(); showBan(); } else hideBan();
   }));
 
@@ -954,10 +1054,12 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
     if (!pick) return;
     region = pick;
     try { localStorage.setItem('grabclaude_region', region); } catch (_) {}
+    setLangFor(region);
     if (region === 'cn') showBan();
     $('onboard').classList.add('out');
     setTimeout(() => { $('onboard').hidden = true; $('onboard').classList.remove('out'); }, 350);
   });
+  if (region) setLangFor(region); else applyLang();
   if (!region) $('onboard').hidden = false;
   else if (region === 'cn') showBan();
   render();
