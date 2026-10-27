@@ -11,6 +11,7 @@
   --bg:#faf9f5;--surface:#ffffff;--surface-2:#f5f4ed;--ink:#141413;--ink2:#3d3d3a;--muted:#73726c;--faint:#9c9a92;
   --line:rgba(31,30,29,.15);--line-soft:rgba(31,30,29,.08);--dot:rgba(31,30,29,.09);
   --clay:#d97757;--clay-dark:#c6613f;--crab:#d97757;--eye:#141413;--gold:#d9a23a;--gold-dark:#a87418;
+  --sonnet:#2c84db;--opus:#d0453b;--track:rgba(31,30,29,.08);
   --danger:#b53333;--scrim:rgba(250,249,245,.86);--overlay:rgba(20,20,19,.32);
   --shadow:0 4px 24px rgba(0,0,0,.04),0 1px 2px rgba(0,0,0,.03);
   --serif:"Copernicus","Tiempos Headline",Georgia,"Times New Roman","Songti SC","STSong",serif;
@@ -19,6 +20,7 @@
 @media(prefers-color-scheme:dark){:root{
   --bg:#262624;--surface:#30302e;--surface-2:#1f1e1d;--ink:#faf9f5;--ink2:#e5e4df;--muted:#a6a39b;--faint:#7c7a73;
   --line:rgba(222,220,209,.15);--line-soft:rgba(222,220,209,.08);--dot:rgba(222,220,209,.07);
+  --sonnet:#5ba3eb;--opus:#e8685e;--track:rgba(222,220,209,.1);
   --danger:#e06c6c;--scrim:rgba(38,38,36,.86);--overlay:rgba(0,0,0,.5);--shadow:0 4px 24px rgba(0,0,0,.25);
 }}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -213,6 +215,42 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
 .link-btn:hover{color:var(--ink)}
 .ban-id{margin-top:26px;font-size:12px;color:var(--faint);font-variant-numeric:tabular-nums}
 
+/* ===== usage page (mirrors Claude's Settings → Usage) ===== */
+.token-chip{cursor:pointer;transition:border-color .15s}
+.token-chip:hover{border-color:var(--faint)}
+#usage{position:fixed;inset:0;z-index:55;background:var(--bg);display:flex;flex-direction:column;animation:fade .18s ease-out}
+.u-top{flex-shrink:0;height:56px;display:flex;align-items:center;gap:6px;width:100%;max-width:760px;margin:0 auto;padding:0 12px;padding-top:env(safe-area-inset-top)}
+.u-top h2{font-family:var(--serif);font-weight:400;font-size:22px;letter-spacing:-.3px}
+.u-body{flex:1;overflow:auto;padding:6px 20px calc(28px + env(safe-area-inset-bottom))}
+.u-wrap{max-width:720px;margin:0 auto}
+.u-card{background:var(--surface);border:.5px solid var(--line);border-radius:16px;padding:20px 22px 8px}
+.u-head{display:flex;align-items:center;gap:10px}
+.u-head h3{font-size:16px;font-weight:600;color:var(--ink)}
+.badge{font-size:12px;line-height:1;padding:4px 8px;border-radius:6px;background:var(--surface-2);border:.5px solid var(--line);color:var(--muted)}
+.u-desc{font-size:13px;line-height:1.5;color:var(--muted);margin-top:6px}
+.u-sec{font-size:13px;font-weight:600;color:var(--ink);margin-top:20px;padding-bottom:2px}
+.u-sec+.u-row{border-top:0}
+.u-row{display:grid;grid-template-columns:minmax(130px,200px) 1fr 92px;align-items:center;gap:18px;padding:14px 0;border-top:.5px solid var(--line-soft)}
+.u-name{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500;color:var(--ink)}
+.u-name i{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.u-reset{font-size:12.5px;color:var(--muted);margin-top:3px}
+.bar{height:8px;border-radius:999px;background:var(--track);overflow:hidden}
+.bar i{display:block;height:100%;width:0;border-radius:inherit;transition:width .7s cubic-bezier(.2,.8,.2,1)}
+[data-model="sonnet"] .bar i,[data-model="sonnet"] .u-name i{background:var(--sonnet)}
+[data-model="opus"] .bar i,[data-model="opus"] .u-name i{background:var(--opus)}
+.u-pct{font-size:13px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.u-sep{height:.5px;background:var(--line);margin:8px 0 0}
+.u-foot{display:flex;align-items:center;gap:4px;font-size:12.5px;color:var(--muted);margin:14px 2px 0}
+.u-foot .icon-btn{width:28px;height:28px}
+.u-foot .icon-btn svg{width:15px;height:15px}
+.u-foot .icon-btn.spin svg{animation:rot .6s ease-out}
+@media(max-width:560px){
+  .u-body{padding:4px 14px 24px}.u-card{padding:18px 16px 6px}
+  .u-row{grid-template-columns:1fr auto;gap:10px 12px}
+  .u-row .bar{grid-column:1/-1;grid-row:2}
+  .u-pct{align-self:start;margin-top:1px}
+}
+
 /* ===== responsive ===== */
 @media(max-width:520px){
   header{padding:0 14px}
@@ -254,7 +292,7 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
 <header>
   <div class="brand"><span class="mark" data-crab></span><span>Claude</span></div>
   <div class="head-right">
-    <div class="token-chip" id="chip"><span class="spark" data-burst></span><strong id="total-tokens">0</strong><span class="lbl">Tokens</span></div>
+    <div class="token-chip" id="chip" role="button" tabindex="0" aria-label="查看用量"><span class="spark" data-burst></span><strong id="total-tokens">0</strong><span class="lbl">Tokens</span></div>
     <button class="icon-btn" id="open-settings" aria-label="设置">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
     </button>
@@ -329,10 +367,55 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
       <button class="switch" id="sw-haptic" role="switch" aria-label="触感反馈"></button>
     </div>
     <div class="row">
+      <div><div class="row-title">用量</div><div class="row-desc">Sonnet 与 Opus 的每日和每周用量。</div></div>
+      <button class="btn-outline" id="open-usage">查看</button>
+    </div>
+    <div class="row">
       <div><div class="row-title">重置记录</div><div class="row-desc">清空累计 Tokens、抓获数和最佳记录。</div></div>
       <button class="btn-outline danger" id="reset">重置</button>
     </div>
     <div class="made-row"><span class="made"><span class="spark" data-burst></span>Created with Opus 5.5</span></div>
+  </div>
+</div>
+
+<div id="usage" role="dialog" aria-labelledby="usage-title" hidden>
+  <div class="u-top">
+    <button class="icon-btn" id="close-usage" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <h2 id="usage-title">用量</h2>
+  </div>
+  <div class="u-body">
+    <div class="u-wrap">
+      <section class="u-card">
+        <div class="u-head"><h3>套餐用量限额</h3><span class="badge">Max</span></div>
+        <p class="u-desc">Sonnet 和 Opus 的用量分别计算。达到上限后仍可继续游玩，额度会按时重置。</p>
+        <div class="u-sec">每日限额</div>
+        <div class="u-row" data-scope="d" data-model="sonnet">
+          <div><div class="u-name"><i></i>Sonnet</div><div class="u-reset"></div></div>
+          <div class="bar" role="progressbar" aria-label="Sonnet" aria-valuemin="0" aria-valuemax="100"><i></i></div>
+          <div class="u-pct"></div>
+        </div>
+        <div class="u-row" data-scope="d" data-model="opus">
+          <div><div class="u-name"><i></i>Opus</div><div class="u-reset"></div></div>
+          <div class="bar" role="progressbar" aria-label="Opus" aria-valuemin="0" aria-valuemax="100"><i></i></div>
+          <div class="u-pct"></div>
+        </div>
+        <div class="u-sep"></div>
+        <div class="u-sec">每周限额</div>
+        <div class="u-row" data-scope="w" data-model="sonnet">
+          <div><div class="u-name"><i></i>Sonnet</div><div class="u-reset"></div></div>
+          <div class="bar" role="progressbar" aria-label="Sonnet" aria-valuemin="0" aria-valuemax="100"><i></i></div>
+          <div class="u-pct"></div>
+        </div>
+        <div class="u-row" data-scope="w" data-model="opus">
+          <div><div class="u-name"><i></i>Opus</div><div class="u-reset"></div></div>
+          <div class="bar" role="progressbar" aria-label="Opus" aria-valuemin="0" aria-valuemax="100"><i></i></div>
+          <div class="u-pct"></div>
+        </div>
+      </section>
+      <div class="u-foot"><span id="usage-updated">最后更新：刚刚</span>
+        <button class="icon-btn" id="refresh-usage" aria-label="刷新"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg></button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -632,6 +715,7 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
     state.maxCombo = Math.max(state.maxCombo, state.combo);
     const pts = c.golden ? 10 : 1;
     state.score += pts; state.tokens += pts; state.caught++;
+    countUsage(c.golden ? 'opus' : 'sonnet');
     const stop = c.golden ? .12 : .055 + Math.min(state.combo, 12) * .004;
     freeze = Math.max(freeze, stop);
     Sfx.hit(state.combo, c.golden);
@@ -756,6 +840,57 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
     state.tokens = 0; state.caught = 0; state.score = 0; state.best = 0; persist(); render();
   });
 
+  /* ---------- Usage: Sonnet / Opus catches per day and per week ---------- */
+  const LIMITS = {d: {sonnet: 150, opus: 15}, w: {sonnet: 800, opus: 60}};
+  const dayKey = d => d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+  const weekStart = d => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() - (x.getDay() + 6) % 7); return x; };
+  let usage = {};
+  try { usage = JSON.parse(localStorage.getItem('grabclaude_usage') || '{}'); } catch (_) {}
+  function rollUsage() {
+    const now = new Date(), dk = dayKey(now), wk = dayKey(weekStart(now));
+    if (usage.day !== dk) { usage.day = dk; usage.d = {sonnet: 0, opus: 0}; }
+    if (usage.week !== wk) { usage.week = wk; usage.w = {sonnet: 0, opus: 0}; }
+  }
+  function countUsage(model) {
+    rollUsage(); usage.d[model]++; usage.w[model]++;
+    try { localStorage.setItem('grabclaude_usage', JSON.stringify(usage)); } catch (_) {}
+  }
+  let usageAt = 0;
+  function renderUsage() {
+    rollUsage(); usageAt = Date.now();
+    const now = new Date(), mid = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const left = Math.max(1, Math.ceil((mid - now) / 60000)), h = Math.floor(left / 60), m = left % 60;
+    const dayReset = (h ? h + ' 小时 ' : '') + m + ' 分钟后重置';
+    document.querySelectorAll('.u-row').forEach(row => {
+      const sc = row.dataset.scope, md = row.dataset.model, used = usage[sc][md], lim = LIMITS[sc][md];
+      const pct = Math.min(100, Math.round(used / lim * 100));
+      row.querySelector('.u-reset').textContent = sc === 'd' ? dayReset : '周一 00:00 重置';
+      row.querySelector('.bar i').style.width = pct + '%';
+      row.querySelector('.bar').setAttribute('aria-valuenow', pct);
+      row.querySelector('.u-pct').textContent = pct + '% 已使用';
+      row.title = used + ' / ' + lim;
+    });
+    $('usage-updated').textContent = '最后更新：刚刚';
+  }
+  function openUsage() {
+    if (state.active) return;
+    closeSettings(); $('usage').hidden = false;
+    document.querySelectorAll('.bar i').forEach(i => i.style.width = '0');   // let the bars grow in
+    requestAnimationFrame(() => requestAnimationFrame(renderUsage));
+    $('close-usage').focus();
+  }
+  function closeUsage() { $('usage').hidden = true; }
+  $('chip').addEventListener('click', openUsage);
+  $('chip').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openUsage(); } });
+  $('open-usage').addEventListener('click', openUsage);
+  $('close-usage').addEventListener('click', closeUsage);
+  $('refresh-usage').addEventListener('click', () => { restart($('refresh-usage'), 'spin'); renderUsage(); });
+  setInterval(() => {
+    if ($('usage').hidden || !usageAt) return;
+    const min = Math.floor((Date.now() - usageAt) / 60000);
+    $('usage-updated').textContent = '最后更新：' + (min < 1 ? '刚刚' : min + ' 分钟前');
+  }, 15000);
+
   /* ---------- Greeting ---------- */
   const hr = new Date().getHours();
   $('greeting').textContent = (hr < 5 ? '夜深了' : hr < 11 ? '早上好' : hr < 13 ? '中午好' : hr < 18 ? '下午好' : '晚上好') + '，来抓 Claude 吧';
@@ -773,7 +908,10 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
   $('open-settings').addEventListener('click', openSettings);
   $('close-settings').addEventListener('click', closeSettings);
   $('settings').addEventListener('click', e => { if (e.target === $('settings')) closeSettings(); });
-  addEventListener('keydown', e => { if (e.key === 'Escape' && !$('settings').hidden) closeSettings(); });
+  addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    if (!$('settings').hidden) closeSettings(); else if (!$('usage').hidden) closeUsage();
+  });
   $('sw-sound').addEventListener('click', () => { Sfx.set(!Sfx.on); syncSettings(); });
   $('sw-haptic').addEventListener('click', () => { Haptics.set(!Haptics.on); syncSettings(); Haptics.light(); });
   document.querySelectorAll('[data-region]').forEach(b => b.addEventListener('click', () => {
