@@ -3,70 +3,103 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#f9f9f7">
+<meta name="theme-color" content="#faf9f5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#262624" media="(prefers-color-scheme: dark)">
 <title>Grab Claude</title>
 <style>
 :root{
-  --paper:#f9f9f7;--surface:#ffffff;--ink:#141413;--ink2:#3d3c38;--muted:#77756f;
-  --line:#e4e2dd;--crab:#d97757;--eye:#141413;--orange:#d97757;--orange-dark:#bd5f42;
-  --gold:#d9a23a;--gold-dark:#a87418;
-  --serif:Georgia,"Times New Roman","Songti SC",serif;
-  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif;
+  --bg:#faf9f5;--surface:#ffffff;--surface-2:#f5f4ed;--ink:#141413;--ink2:#3d3d3a;--muted:#73726c;--faint:#9c9a92;
+  --line:rgba(31,30,29,.15);--line-soft:rgba(31,30,29,.08);--dot:rgba(31,30,29,.09);
+  --clay:#d97757;--clay-dark:#c6613f;--crab:#d97757;--eye:#141413;--gold:#d9a23a;--gold-dark:#a87418;
+  --danger:#b53333;--scrim:rgba(250,249,245,.86);--overlay:rgba(20,20,19,.32);
+  --shadow:0 4px 24px rgba(0,0,0,.04),0 1px 2px rgba(0,0,0,.03);
+  --serif:"Copernicus","Tiempos Headline",Georgia,"Times New Roman","Songti SC","STSong",serif;
+  --sans:"Styrene B",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
 }
+@media(prefers-color-scheme:dark){:root{
+  --bg:#262624;--surface:#30302e;--surface-2:#1f1e1d;--ink:#faf9f5;--ink2:#e5e4df;--muted:#a6a39b;--faint:#7c7a73;
+  --line:rgba(222,220,209,.15);--line-soft:rgba(222,220,209,.08);--dot:rgba(222,220,209,.07);
+  --danger:#e06c6c;--scrim:rgba(38,38,36,.86);--overlay:rgba(0,0,0,.5);--shadow:0 4px 24px rgba(0,0,0,.25);
+}}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{width:100%;height:100%;overflow:hidden}
-body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-user-select:none;user-select:none}
-button{font:inherit;cursor:pointer;color:inherit}
-#app{height:100%;height:100dvh;max-width:1120px;margin:auto;display:flex;flex-direction:column;position:relative}
-header{height:72px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 28px;padding-top:env(safe-area-inset-top);border-bottom:1px solid var(--line);background:var(--paper)}
-.brand{display:flex;align-items:center;gap:12px;font-family:var(--serif);font-size:27px;letter-spacing:-.65px}
-.head-right{display:flex;align-items:center;gap:8px}
-.icon-btn{width:38px;height:38px;border-radius:999px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;color:var(--muted)}
-.icon-btn svg{width:17px;height:17px}
-.icon-btn .off{display:none}.icon-btn.muted .on{display:none}.icon-btn.muted .off{display:block}
-.token-chip{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:9px 13px;font-size:13px;color:var(--muted)}
-.token-chip strong{color:var(--ink);font-size:14px;font-variant-numeric:tabular-nums;display:inline-block}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;-webkit-user-select:none;user-select:none}
+button{font:inherit;cursor:pointer;color:inherit;background:none;border:0}
+button:focus-visible{outline:2px solid var(--clay);outline-offset:2px}
+[hidden]{display:none!important}
+#app{height:100%;height:100dvh;display:flex;flex-direction:column}
+
+/* ===== header ===== */
+header{flex-shrink:0;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;padding-top:env(safe-area-inset-top);width:100%;max-width:1040px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--serif);font-size:21px;letter-spacing:-.3px;color:var(--ink)}
+.head-right{display:flex;align-items:center;gap:6px}
+.icon-btn{width:34px;height:34px;border-radius:8px;display:grid;place-items:center;color:var(--muted);transition:background .15s,color .15s}
+.icon-btn:hover{background:var(--line-soft);color:var(--ink)}
+.icon-btn:disabled{opacity:.4;cursor:default;background:none}
+.icon-btn svg{width:18px;height:18px}
+.token-chip{display:flex;align-items:center;gap:6px;height:32px;border:.5px solid var(--line);background:var(--surface);border-radius:999px;padding:0 12px;font-size:13px;color:var(--muted)}
+.token-chip strong{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;display:inline-block}
 .token-chip.bump strong{animation:bump .32s cubic-bezier(.2,1.8,.4,1)}
 .token-chip.bump .spark{animation:spin .4s ease-out}
-.spark{color:var(--crab);display:inline-block}
-@keyframes bump{0%{transform:scale(1)}35%{transform:scale(1.35);color:var(--orange-dark)}100%{transform:scale(1)}}
-@keyframes spin{to{transform:rotate(180deg) scale(1)}}
+.spark{color:var(--clay);display:inline-flex}
+.spark svg{width:13px;height:13px}
+@keyframes bump{0%{transform:scale(1)}35%{transform:scale(1.35);color:var(--clay-dark)}100%{transform:scale(1)}}
+@keyframes spin{to{transform:rotate(180deg)}}
 
-/* ===== crab model: 12×8 grid, measured from Claude Code ===== */
+/* ===== mascot: 12×8 grid, measured from Claude Code ===== */
 .crab-svg{display:block;overflow:visible}
 .crab-svg .shell,.crab-svg .leg{fill:var(--crab)}
 .crab-svg .eyes{fill:var(--eye);animation:blink 4.2s infinite;animation-delay:var(--bd,0s)}
 @keyframes blink{0%,95%,100%{opacity:1}96.5%,98.5%{opacity:0}}
-.mark{display:block;width:39px;height:26px;flex-shrink:0}
+.mark{display:block;width:30px;height:20px;flex-shrink:0}
 
-main{flex:1;min-height:0;overflow:auto;padding:30px 22px 24px;display:flex;flex-direction:column}
-.intro{text-align:center;margin:0 auto 22px;max-width:500px}
-.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:1.8px;color:var(--muted);font-weight:600;margin-bottom:12px}
-h1{font-family:var(--serif);font-weight:400;font-size:clamp(30px,6vw,40px);letter-spacing:-1.1px;line-height:1.12}
-.subtitle{font-size:14px;line-height:1.6;color:var(--muted);margin-top:11px}
-.stats{display:flex;justify-content:center;gap:10px;margin:0 auto 18px;width:100%;max-width:430px}
-.stat{border:1px solid var(--line);border-radius:14px;padding:12px 15px;flex:1;text-align:center;min-width:0}
-.stat-label{font-size:11px;color:var(--muted);margin-bottom:5px}
-.stat-value{font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;display:inline-block}
-.stat-value.pop{animation:bump .28s cubic-bezier(.2,1.8,.4,1)}
-.stat-value.urgent{color:var(--orange-dark)}
-.stat-value.tick{animation:tick .5s ease-out}
-@keyframes tick{0%{transform:scale(1.28)}100%{transform:scale(1)}}
+/* ===== main column ===== */
+main{flex:1;min-height:0;width:100%;max-width:760px;margin:0 auto;padding:12px 20px 18px;display:flex;flex-direction:column}
+.intro{text-align:center;margin:clamp(8px,4vh,40px) 0 clamp(16px,3.2vh,28px)}
+h1{display:flex;align-items:center;justify-content:center;gap:14px;font-family:var(--serif);font-weight:400;font-size:clamp(28px,5.4vw,40px);letter-spacing:-.6px;line-height:1.15;color:var(--ink2)}
+h1 .burst{width:.9em;height:.9em;color:var(--clay);flex-shrink:0}
+.subtitle{font-size:15px;line-height:1.55;color:var(--muted);margin-top:10px}
 
-#play-area{position:relative;flex:1;min-height:260px;max-height:560px;width:100%;border:1px solid var(--line);border-radius:20px;background:#fbfbfa;overflow:hidden;isolation:isolate;touch-action:none;cursor:crosshair;will-change:transform}
-#play-area:before{content:"";position:absolute;inset:0;opacity:.45;pointer-events:none;background-image:radial-gradient(#e8e3d9 .75px,transparent .75px);background-size:18px 18px}
-#flash{position:absolute;inset:0;z-index:6;pointer-events:none;background:var(--crab);opacity:0}
+/* composer-style game card */
+.composer{flex:1;min-height:0;max-height:640px;display:flex;flex-direction:column;background:var(--surface);border:.5px solid var(--line);border-radius:22px;box-shadow:var(--shadow);overflow:hidden}
+#play-area{position:relative;flex:1;min-height:180px;overflow:hidden;isolation:isolate;touch-action:none;cursor:crosshair;will-change:transform}
+#play-area:before{content:"";position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(var(--dot) 1px,transparent 1px);background-size:20px 20px;background-position:10px 10px}
+#flash{position:absolute;inset:0;z-index:6;pointer-events:none;background:var(--clay);opacity:0}
 #flash.go{animation:flash .18s ease-out}
 @keyframes flash{0%{opacity:.14}100%{opacity:0}}
-#timebar{position:absolute;left:0;top:0;height:3px;width:100%;background:var(--crab);transform-origin:left;z-index:5;transform:scaleX(0);opacity:.85}
+#timebar{position:absolute;left:0;top:0;height:2px;width:100%;background:var(--clay);transform-origin:left;z-index:5;transform:scaleX(0)}
 #timebar.urgent{animation:barpulse .5s steps(2) infinite}
 @keyframes barpulse{50%{opacity:.35}}
 canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none;image-rendering:pixelated}
 
-.play-hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;pointer-events:none;text-align:center;padding:24px}
-.play-hint .mark{width:72px;height:48px}
-.play-hint span{font-size:19px;color:var(--ink2);letter-spacing:1px}
+.play-hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;pointer-events:none;text-align:center;padding:24px}
+.play-hint .mark{width:66px;height:44px}
+.thinking{font-size:15px;letter-spacing:.2px;color:var(--muted);background:linear-gradient(90deg,var(--muted) 0 38%,var(--ink) 50%,var(--muted) 62% 100%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 2.4s linear infinite}
+@keyframes shimmer{from{background-position:100% 0}to{background-position:-150% 0}}
 
+/* toolbar under the play area, like the composer's bottom row */
+.toolbar{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px 12px 18px;border-top:.5px solid var(--line-soft)}
+.stats{display:flex;gap:22px;min-width:0}
+.stat{display:flex;flex-direction:column;gap:1px;min-width:0}
+.stat-label{font-size:11px;color:var(--faint);white-space:nowrap}
+.stat-value{font-size:15px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;display:inline-block;transform-origin:left center}
+.stat-value.pop{animation:bump .28s cubic-bezier(.2,1.8,.4,1)}
+.stat-value.urgent{color:var(--clay-dark)}
+.stat-value.tick{animation:tick .5s ease-out}
+@keyframes tick{0%{transform:scale(1.28)}100%{transform:scale(1)}}
+.primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:38px;padding:0 14px 0 16px;border-radius:10px;background:var(--clay);color:#fff;font-weight:500;font-size:14px;white-space:nowrap;flex-shrink:0;transition:background .15s,transform .1s,opacity .15s}
+.primary svg{width:16px;height:16px}
+.primary:hover{background:var(--clay-dark)}
+.primary:active{transform:scale(.97)}
+.primary:disabled{opacity:.5;cursor:default;transform:none;background:var(--clay)}
+
+.pills{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:14px}
+.pill{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border:.5px solid var(--line);border-radius:8px;background:var(--surface);font-size:13px;color:var(--ink2)}
+.pill i{width:7px;height:7px;border-radius:2px;background:var(--clay);display:inline-block}
+.pill i.g{background:var(--gold)}
+.note{font-size:12px;line-height:1.5;color:var(--faint);text-align:center;margin-top:12px}
+
+/* ===== in-play effects ===== */
 .crab{position:absolute;left:0;top:0;z-index:2;pointer-events:none;will-change:transform}
 .crab-body{width:100%;height:100%;transform-origin:50% 100%;animation:emerge .3s cubic-bezier(.25,1.7,.45,1) both}
 .crab-body .crab-svg{width:100%;height:100%}
@@ -76,7 +109,7 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
 @keyframes emerge{0%{opacity:0;transform:translateY(35%) scale(.7,.15)}60%{opacity:1}100%{opacity:1;transform:none}}
 .crab.hit .crab-body{animation:none;transform:scale(1.3,.68)}
 .crab.hit .shell,.crab.hit .leg{fill:var(--ink)}
-.crab.hit .eyes{fill:#fff;animation:none;opacity:1}
+.crab.hit .eyes{fill:var(--bg);animation:none;opacity:1}
 .crab.leaving .crab-body{animation:dig .24s cubic-bezier(.5,0,.8,.4) forwards}
 @keyframes dig{0%{transform:scale(1.12,.86)}100%{transform:translateY(30%) scale(.9,0);opacity:0}}
 .crab.golden{--crab:var(--gold)}
@@ -85,74 +118,118 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
 .crab.golden:after{right:-8px;top:2px;animation-delay:-.25s}
 @keyframes twinkle{50%{opacity:0}}
 
-.float-txt{position:absolute;z-index:4;pointer-events:none;font-weight:700;color:var(--orange-dark);font-size:18px;font-variant-numeric:tabular-nums;white-space:nowrap;transform:translate(-50%,-50%);animation:floatup .75s cubic-bezier(.2,.9,.3,1) forwards}
+.float-txt{position:absolute;z-index:4;pointer-events:none;font-weight:600;color:var(--clay-dark);font-size:18px;font-variant-numeric:tabular-nums;white-space:nowrap;transform:translate(-50%,-50%);animation:floatup .75s cubic-bezier(.2,.9,.3,1) forwards}
 .float-txt.big{font-size:26px;color:var(--gold-dark)}
-.float-txt.miss{color:#b3afa6;font-size:13px;font-weight:500}
+.float-txt.miss{color:var(--faint);font-size:13px;font-weight:500}
 @keyframes floatup{0%{transform:translate(-50%,-50%) scale(.4)}22%{transform:translate(-50%,-90%) scale(1.25)}100%{transform:translate(-50%,-260%) scale(1);opacity:0}}
 
 #combo{position:absolute;top:14px;right:16px;z-index:5;pointer-events:none;text-align:right;opacity:0;transition:opacity .2s}
 #combo.show{opacity:1}
-#combo .n{font-family:var(--serif);font-size:34px;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums;display:inline-block}
+#combo .n{font-family:var(--serif);font-size:32px;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums;display:inline-block}
 #combo .n.pop{animation:cpop .25s cubic-bezier(.2,1.9,.4,1)}
-#combo .lbl{font-size:11px;letter-spacing:1.5px;color:var(--muted);margin-top:4px}
-#combo .meter{height:2px;background:var(--line);margin-top:6px;width:64px;margin-left:auto;overflow:hidden}
-#combo .meter i{display:block;height:100%;background:var(--crab);transform-origin:left}
-#combo.hot .n{color:var(--orange-dark)}
+#combo .lbl{font-size:11px;letter-spacing:1px;color:var(--muted);margin-top:4px}
+#combo .meter{height:2px;background:var(--line-soft);margin-top:6px;width:60px;margin-left:auto;overflow:hidden;border-radius:2px}
+#combo .meter i{display:block;height:100%;background:var(--clay);transform-origin:left}
+#combo.hot .n{color:var(--clay-dark)}
 @keyframes cpop{0%{transform:scale(1.7) rotate(-6deg)}100%{transform:none}}
 #banner{position:absolute;left:50%;top:42%;z-index:6;pointer-events:none;text-align:center;transform:translate(-50%,-50%);opacity:0}
 #banner.go{animation:banner .9s cubic-bezier(.2,.9,.3,1) forwards}
-#banner b{display:block;font-family:var(--serif);font-weight:400;font-size:40px;color:var(--ink);letter-spacing:-1px}
-#banner span{font-size:13px;color:var(--orange-dark);font-weight:600}
+#banner b{display:block;font-family:var(--serif);font-weight:400;font-size:40px;color:var(--ink);letter-spacing:-.8px}
+#banner span{font-size:13px;color:var(--clay-dark);font-weight:600}
 @keyframes banner{0%{opacity:0;transform:translate(-50%,-50%) scale(1.8)}15%{opacity:1;transform:translate(-50%,-50%) scale(1)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-80%)}}
 
-.controls{width:100%;max-width:430px;margin:18px auto 0}
-.primary{width:100%;border:0;border-radius:13px;background:var(--orange);color:#fff;padding:16px 18px;font-weight:500;font-size:15px;transition:background .15s,transform .15s}
-.primary:active{background:var(--orange-dark);transform:scale(.985)}
-.primary:disabled{opacity:.45;cursor:default}
-.secondary-row{display:flex;justify-content:space-between;align-items:center;margin-top:13px;font-size:12px;color:var(--muted);gap:10px}
-.secondary{border:0;background:transparent;color:var(--orange-dark);padding:8px 0;font-size:12px;flex-shrink:0}
-.note{font-size:11px;line-height:1.5;color:#9a978e;text-align:center;margin-top:12px}
-
-#result{display:none;position:absolute;inset:0;z-index:8;background:rgba(249,249,247,.88);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);align-items:center;justify-content:center;padding:20px;cursor:default;overflow:auto}
+/* ===== round result ===== */
+#result{display:none;position:absolute;inset:0;z-index:8;background:var(--scrim);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px;cursor:default;overflow:auto}
 #result.show{display:flex}
-.result-card{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:26px 24px;width:100%;max-width:330px;text-align:center;box-shadow:0 12px 40px rgba(45,37,26,.06);animation:card .35s cubic-bezier(.2,1.4,.4,1)}
+.result-card{background:var(--surface);border:.5px solid var(--line);border-radius:20px;padding:24px;width:100%;max-width:340px;text-align:center;box-shadow:var(--shadow);animation:card .35s cubic-bezier(.2,1.4,.4,1)}
 @keyframes card{from{transform:translateY(14px) scale(.96);opacity:0}}
-.result-card .mark{width:48px;height:32px;margin:0 auto 14px}
-.result-card h2{font-family:var(--serif);font-size:29px;font-weight:400;margin-bottom:6px}
-.result-card p{color:var(--muted);font-size:13px}
-.result-score{font-size:36px;font-weight:650;margin:12px 0 4px;font-variant-numeric:tabular-nums}
-.result-meta{display:flex;justify-content:center;gap:18px;margin:12px 0 20px;font-size:12px;color:var(--muted)}
-.result-meta b{display:block;font-size:17px;color:var(--ink);font-variant-numeric:tabular-nums;margin-bottom:2px}
-.record{display:none;font-size:11px;letter-spacing:1.5px;color:var(--orange-dark);font-weight:600;margin-top:2px}
+.result-card .mark{width:42px;height:28px;margin:0 auto 14px}
+.result-card h2{font-family:var(--serif);font-size:26px;font-weight:400;letter-spacing:-.4px;color:var(--ink)}
+.result-score{font-size:34px;font-weight:600;margin:10px 0 2px;font-variant-numeric:tabular-nums;letter-spacing:-.5px}
+.result-meta{display:flex;justify-content:center;gap:0;margin:14px 0 18px;border:.5px solid var(--line);border-radius:12px;overflow:hidden}
+.result-meta>div{flex:1;padding:10px 4px;font-size:11px;color:var(--muted)}
+.result-meta>div+div{border-left:.5px solid var(--line)}
+.result-meta b{display:block;font-size:17px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;margin-bottom:2px}
+.result-card .primary{width:100%;height:42px}
+.record{display:none;font-size:12px;color:var(--clay-dark);font-weight:600;margin-top:2px}
 .record.show{display:block}
-@media(min-width:600px){
-  #play-area{max-width:780px;align-self:center;min-height:330px}
-}
+
+/* ===== settings dialog ===== */
+.modal{position:fixed;inset:0;z-index:60;background:var(--overlay);display:flex;align-items:center;justify-content:center;padding:16px;animation:fade .18s ease-out}
+@keyframes fade{from{opacity:0}}
+.sheet{width:100%;max-width:440px;max-height:100%;overflow:auto;background:var(--surface);border:.5px solid var(--line);border-radius:16px;box-shadow:0 16px 48px rgba(0,0,0,.14);padding:20px 22px 22px;animation:card .25s cubic-bezier(.2,1.2,.4,1)}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.sheet-head h2{font-family:var(--serif);font-weight:400;font-size:22px;letter-spacing:-.3px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;border-top:.5px solid var(--line-soft)}
+.sheet-head+.row{border-top:0}
+.row.stack{flex-direction:column;align-items:stretch;gap:10px}
+.row-title{font-size:14px;font-weight:500;color:var(--ink)}
+.row-desc{font-size:12.5px;line-height:1.45;color:var(--muted);margin-top:2px}
+.segmented{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:3px;border-radius:10px;background:var(--surface-2);border:.5px solid var(--line-soft)}
+.segmented button{height:34px;border-radius:7px;font-size:14px;color:var(--muted);transition:background .15s,color .15s}
+.segmented button[aria-checked="true"]{background:var(--surface);color:var(--ink);font-weight:500;box-shadow:0 1px 3px rgba(0,0,0,.1),0 0 0 .5px var(--line)}
+.switch{position:relative;width:38px;height:22px;border-radius:999px;background:var(--line);flex-shrink:0;transition:background .18s}
+.switch:after{content:"";position:absolute;left:2px;top:2px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform .18s cubic-bezier(.3,1.4,.5,1)}
+.switch[aria-checked="true"]{background:var(--clay)}
+.switch[aria-checked="true"]:after{transform:translateX(16px)}
+.btn-outline{height:32px;padding:0 14px;border-radius:8px;border:.5px solid var(--line);background:var(--surface);font-size:13px;color:var(--ink);flex-shrink:0}
+.btn-outline.danger{color:var(--danger)}
+.btn-outline:disabled{opacity:.45;cursor:default}
+
+/* ===== region notice (mirrors Claude's account notice page) ===== */
+#ban{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column;animation:fade .2s ease-out}
+#ban.out{animation:fadeout .35s ease-in forwards}
+@keyframes fadeout{to{opacity:0}}
+#ban header{border:0}
+.ban-body{flex:1;overflow:auto;display:flex;padding:24px 24px calc(24px + env(safe-area-inset-bottom))}
+.ban-inner{width:100%;max-width:400px;margin:auto;text-align:center}
+.ban-inner .burst{width:36px;height:36px;color:var(--clay);margin:0 auto 22px;display:block}
+.ban-inner h1{display:block;font-size:30px;color:var(--ink);margin-bottom:14px}
+.ban-inner p{font-size:15px;line-height:1.6;color:var(--ink2);margin-top:10px}
+.ban-inner p u{text-decoration-color:var(--line);text-underline-offset:3px}
+.btn-dark{width:100%;height:44px;border-radius:10px;background:var(--ink);color:var(--bg);font-weight:500;font-size:15px;margin-top:28px;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s}
+.btn-dark:disabled{opacity:.75;cursor:default}
+.btn-dark.ok{opacity:1}
+.btn-dark svg{width:16px;height:16px}
+.spinner{width:15px;height:15px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:rot .7s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+.link-btn{margin-top:14px;font-size:14px;color:var(--muted);text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+.link-btn:hover{color:var(--ink)}
+.ban-id{margin-top:26px;font-size:12px;color:var(--faint);font-variant-numeric:tabular-nums}
+
+/* ===== responsive ===== */
 @media(max-width:520px){
-  header{padding:0 17px}
-  main{padding:22px 16px 20px}
-  .brand{font-size:23px}
-  .token-chip{padding:8px 10px}
-  .result-card{padding:20px 20px}.result-card .mark,.result-card p{display:none}.result-score{margin:8px 0 2px}.result-meta{margin:10px 0 16px}
+  header{padding:0 14px}
+  main{padding:6px 14px 14px}
+  .subtitle{font-size:14px}
+  .composer{border-radius:20px}
+  .toolbar{padding:10px 10px 10px 16px}
+  .stats{gap:16px}
+  .token-chip .lbl{display:none}
+  .result-card{padding:20px}.result-card .mark{display:none}.result-score{margin:8px 0 2px}.result-meta{margin:12px 0 16px}
 }
-@media(max-height:700px){main{padding-top:14px;padding-bottom:14px}.eyebrow{display:none}h1{font-size:28px}.intro{margin-bottom:12px}.subtitle{margin-top:6px;font-size:13px}.stats{margin-bottom:12px}.stat{padding:8px 12px}.stat-value{font-size:18px}#play-area{min-height:200px}.controls{margin-top:12px}.primary{padding:13px 18px}.note{display:none}
-  #result{padding:12px}.result-card{padding:15px 20px}.result-card .mark{margin-bottom:8px}.result-score{margin:8px 0 2px}.result-meta{margin:10px 0 14px}}
-/* short landscape phones: drop the intro, keep the play area as large as possible */
+@media(max-height:700px){
+  .intro{margin:4px 0 14px}h1{font-size:28px}.subtitle{margin-top:6px;font-size:14px}
+  .pills{margin-top:10px}.note{display:none}
+  #result{padding:12px}.result-card{padding:16px 20px}.result-card .mark{display:none}.result-meta{margin:10px 0 14px}
+}
+/* short landscape phones: only the game card and its toolbar */
 @media(max-height:500px){
-  header{height:48px}.brand{font-size:20px}.mark{width:30px;height:20px}.icon-btn{width:32px;height:32px}.token-chip{padding:6px 10px}
-  main{padding:8px 16px 10px}.intro{display:none}
-  .stats{max-width:none;margin-bottom:8px}.stat{display:flex;align-items:baseline;justify-content:center;gap:8px;padding:6px 10px;border-radius:10px}.stat-label{margin:0}.stat-value{font-size:16px}
-  #play-area{min-height:140px;max-width:none;border-radius:14px}
-  .controls{display:flex;align-items:center;gap:14px;max-width:none;margin-top:8px}.controls .primary{flex:1;padding:10px 16px}.secondary-row{margin:0;flex-shrink:0}.secondary-row span{display:none}
-  /* result card goes two-column so it fits a ~150px tall play area */
+  header{height:44px}.brand{font-size:18px}.mark{width:26px;height:17px}
+  main{padding:2px 16px 10px;max-width:none}
+  .intro,.pills{display:none}
+  .composer{max-height:none;border-radius:16px}
+  .toolbar{padding:8px 10px 8px 16px}
   #result{padding:8px}
   .result-card{display:grid;grid-template-columns:1fr 1fr;column-gap:22px;align-items:center;max-width:540px;padding:14px 20px;text-align:left}
-  .result-card .mark,.result-card p{display:none}
-  .result-card h2{grid-column:1;font-size:22px;margin:0}.result-score{grid-column:1;font-size:28px;margin:2px 0 0}.record{grid-column:1}
-  .result-meta{grid-column:2;grid-row:1/3;margin:0;justify-content:space-between;text-align:center}
-  #again{grid-column:2;grid-row:3;padding:10px 16px;margin-top:8px}
+  .result-card h2{grid-column:1;font-size:22px}.result-score{grid-column:1;font-size:28px;margin:2px 0 0}.record{grid-column:1}
+  .result-meta{grid-column:2;grid-row:1/3;margin:0}
+  .result-card .primary{grid-column:2;grid-row:3;margin-top:8px;height:38px}
+  .sheet{padding:14px 18px 16px}.row{padding:10px 0}
+  .ban-body{padding-top:8px}.ban-inner{max-width:520px}.ban-inner .burst{display:none}.ban-inner h1{font-size:24px;margin-bottom:6px}.ban-inner p{font-size:14px;margin-top:6px}.btn-dark{margin-top:16px}.ban-id{margin-top:12px}
 }
-@media(prefers-reduced-motion:reduce){.crab.walking .leg-a,.crab.walking .leg-b{animation:none}}
+@media(max-width:380px){.pills{gap:6px}.pill{padding:0 9px;font-size:12px}}
+@media(prefers-reduced-motion:reduce){.crab.walking .leg-a,.crab.walking .leg-b,.thinking{animation:none}.thinking{-webkit-text-fill-color:var(--muted)}}
 </style>
 </head>
 <body>
@@ -160,53 +237,99 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
 <header>
   <div class="brand"><span class="mark" data-crab></span><span>Claude</span></div>
   <div class="head-right">
-    <button class="icon-btn" id="sound" aria-label="声音开关">
-      <svg class="on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>
-      <svg class="off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="m16 9 6 6M22 9l-6 6"/></svg>
+    <div class="token-chip" id="chip"><span class="spark" data-burst></span><strong id="total-tokens">0</strong><span class="lbl">Tokens</span></div>
+    <button class="icon-btn" id="open-settings" aria-label="设置">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
     </button>
-    <div class="token-chip" id="chip"><span class="spark">✦</span><span>Tokens</span><strong id="total-tokens">0</strong></div>
   </div>
 </header>
 <main>
   <section class="intro">
-    <div class="eyebrow">Claude Code · 小游戏</div>
-    <h1>抓住 Claude</h1>
-    <p class="subtitle">Claude 只会短暂现身，点中换一枚 Token。保持专注。</p>
+    <h1><span class="burst" data-burst></span><span id="greeting">你好</span></h1>
+    <p class="subtitle">Claude 只会短暂现身。点中它，换一枚 Token。</p>
   </section>
-  <section class="stats" aria-label="Game stats">
-    <div class="stat"><div class="stat-label">本局获得</div><div class="stat-value" id="round-score">0</div></div>
-    <div class="stat"><div class="stat-label">剩余时间</div><div class="stat-value" id="timer">20.0s</div></div>
-    <div class="stat"><div class="stat-label">累计抓获</div><div class="stat-value" id="total-caught">0</div></div>
-  </section>
-  <section id="play-area" aria-label="抓 Claude 游戏区域">
-    <div id="timebar"></div>
-    <canvas id="fx"></canvas>
-    <div id="flash"></div>
-    <div class="play-hint" id="hint"><span class="mark" data-crab></span><span>Claude 正在思考…</span></div>
-    <div id="combo"><div class="n" id="combo-n">0</div><div class="lbl">连击</div><div class="meter"><i id="combo-meter"></i></div></div>
-    <div id="banner"><b id="banner-t"></b><span id="banner-s"></span></div>
-    <div id="result">
-      <div class="result-card">
-        <span class="mark" data-crab></span>
-        <h2 id="result-title">抓得不错。</h2>
-        <p>本局 Token 已计入总数。</p>
-        <div class="result-score" id="result-score">+0 Tokens</div>
-        <div class="record" id="record">新纪录</div>
-        <div class="result-meta">
-          <div><b id="r-combo">0</b>最高连击</div>
-          <div><b id="r-acc">0%</b>命中率</div>
-          <div><b id="r-best">0</b>最佳单局</div>
+  <section class="composer">
+    <div id="play-area" aria-label="抓 Claude 游戏区域">
+      <div id="timebar"></div>
+      <canvas id="fx"></canvas>
+      <div id="flash"></div>
+      <div class="play-hint" id="hint"><span class="mark" data-crab></span><span class="thinking">Claude 正在思考…</span></div>
+      <div id="combo"><div class="n" id="combo-n">0</div><div class="lbl">连击</div><div class="meter"><i id="combo-meter"></i></div></div>
+      <div id="banner"><b id="banner-t"></b><span id="banner-s"></span></div>
+      <div id="result">
+        <div class="result-card">
+          <span class="mark" data-crab></span>
+          <h2 id="result-title">抓得不错。</h2>
+          <div class="result-score" id="result-score">+0 Tokens</div>
+          <div class="record" id="record">新纪录</div>
+          <div class="result-meta">
+            <div><b id="r-combo">0</b>最高连击</div>
+            <div><b id="r-acc">0%</b>命中率</div>
+            <div><b id="r-best">0</b>最佳单局</div>
+          </div>
+          <button class="primary" id="again">再来一局</button>
         </div>
-        <button class="primary" id="again">再抓一局</button>
       </div>
     </div>
+    <div class="toolbar">
+      <div class="stats" aria-label="本局数据">
+        <div class="stat"><span class="stat-label">本局</span><span class="stat-value" id="round-score">0</span></div>
+        <div class="stat"><span class="stat-label">剩余</span><span class="stat-value" id="timer">20.0s</span></div>
+        <div class="stat"><span class="stat-label">累计抓获</span><span class="stat-value" id="total-caught">0</span></div>
+      </div>
+      <button class="primary" id="start"><span id="start-label">开始</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+    </div>
   </section>
-  <div class="controls">
-    <button class="primary" id="start">开始抓 Claude</button>
-    <div class="secondary-row"><span>每次 +1 · 金色 Claude +10 · 每 10 连击 +5</span><button class="secondary" id="reset">重置记录</button></div>
-    <p class="note">Tokens 只是游戏积分，不计入 Claude 用量。粉丝自制，非 Anthropic 官方出品。</p>
+  <div class="pills" aria-label="计分规则">
+    <span class="pill"><i></i>每次 +1</span>
+    <span class="pill"><i class="g"></i>金色 Claude +10</span>
+    <span class="pill"><i></i>每 10 连击 +5</span>
   </div>
+  <p class="note">Claude 可能会溜走。Tokens 仅为游戏积分，不计入 Claude 用量。</p>
 </main>
+</div>
+
+<div class="modal" id="settings" role="dialog" aria-modal="true" aria-labelledby="settings-title" hidden>
+  <div class="sheet">
+    <div class="sheet-head">
+      <h2 id="settings-title">设置</h2>
+      <button class="icon-btn" id="close-settings" aria-label="关闭"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <div class="row stack">
+      <div><div class="row-title">地区</div><div class="row-desc">Claude 的可用性取决于你所在的国家或地区。</div></div>
+      <div class="segmented" role="radiogroup" aria-label="地区">
+        <button role="radio" data-region="us">美国</button>
+        <button role="radio" data-region="cn">中国</button>
+      </div>
+    </div>
+    <div class="row">
+      <div><div class="row-title">音效</div><div class="row-desc">抓中、连击和倒计时的声音。</div></div>
+      <button class="switch" id="sw-sound" role="switch" aria-label="音效"></button>
+    </div>
+    <div class="row">
+      <div><div class="row-title">触感反馈</div><div class="row-desc">在支持的设备上，抓中时轻微震动。</div></div>
+      <button class="switch" id="sw-haptic" role="switch" aria-label="触感反馈"></button>
+    </div>
+    <div class="row">
+      <div><div class="row-title">重置记录</div><div class="row-desc">清空累计 Tokens、抓获数和最佳记录。</div></div>
+      <button class="btn-outline danger" id="reset">重置</button>
+    </div>
+  </div>
+</div>
+
+<div id="ban" role="alertdialog" aria-labelledby="ban-title" hidden>
+  <header><div class="brand"><span class="mark" data-crab></span><span>Claude</span></div></header>
+  <div class="ban-body">
+    <div class="ban-inner">
+      <span class="burst" data-burst></span>
+      <h1 id="ban-title">你的账户已被停用</h1>
+      <p>经过对近期活动的自动审核，你的账户已被停用。抓 Claude 目前仅在部分国家和地区提供，你所在的地区暂不在支持范围内。</p>
+      <p>如需了解更多信息，请查看我们的<u>服务条款</u>和<u>使用政策</u>。如果你认为这是误判，可以提交申诉。</p>
+      <button class="btn-dark" id="appeal">申请解封</button>
+      <button class="link-btn" id="ban-region">更改地区</button>
+      <div class="ban-id">账户 ID：<span id="ban-id"></span></div>
+    </div>
+  </div>
 </div>
 <script>
 (() => {
@@ -234,6 +357,11 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
     '<path class="shell" d="M2 0h8v2h2v2h-2v2H2V4H0V2h2z"/>' +
     '<path class="eyes" d="M3 1h1v1H3zM8 1h1v1H8z"/></svg>';
   document.querySelectorAll('[data-crab]').forEach(n => n.innerHTML = crabSVG());
+  // radiating burst used for the greeting, token chip and notices
+  const BURST = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">' +
+    Array.from({length: 10}, (_, i) => { const a = i / 10 * Math.PI * 2, l = i % 2 ? 7.5 : 10.5;
+      return `<path d="M${(12 + Math.cos(a) * 2.2).toFixed(2)} ${(12 + Math.sin(a) * 2.2).toFixed(2)}L${(12 + Math.cos(a) * l).toFixed(2)} ${(12 + Math.sin(a) * l).toFixed(2)}"/>`; }).join('') + '</svg>';
+  document.querySelectorAll('[data-burst]').forEach(n => n.innerHTML = BURST);
   const CSSV = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
   const COL = {crab: CSSV('--crab'), eye: CSSV('--eye'), gold: CSSV('--gold'), ink: CSSV('--ink'), dust: '#d9d3c7'};
 
@@ -268,7 +396,7 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
     return {
       init,
       get on() { return on; },
-      toggle() { on = !on; try { localStorage.setItem('crabcatcher_sfx', on ? '1' : '0'); } catch (_) {} return on; },
+      set(v) { on = v; try { localStorage.setItem('crabcatcher_sfx', on ? '1' : '0'); } catch (_) {} },
       hit(combo, golden) {
         const s = Math.min(combo - 1, 14);
         tone('sine', 210, 48, .14, .95);          // body thump
@@ -291,7 +419,8 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
   // inside a user gesture, so every call below happens in a pointer/click handler.
   const Haptics = (() => {
     const vib = typeof navigator.vibrate === 'function';
-    let sw = null;
+    let sw = null, on = true;
+    try { on = localStorage.getItem('grabclaude_haptics') !== '0'; } catch (_) {}
     if (!vib) {
       sw = document.createElement('label');
       sw.setAttribute('aria-hidden', 'true');
@@ -300,12 +429,15 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
       document.body.appendChild(sw);
     }
     const pulse = (pattern, n, gap) => {
+      if (!on) return;
       if (vib) { navigator.vibrate(pattern); return; }
       if (!sw) return;
       sw.click();
       for (let i = 1; i < n; i++) setTimeout(() => sw.click(), i * gap);
     };
     return {
+      get on() { return on; },
+      set(v) { on = v; try { localStorage.setItem('grabclaude_haptics', on ? '1' : '0'); } catch (_) {} },
       light() { pulse(8, 1); },
       hit(golden) { golden ? pulse([30, 25, 40], 3, 70) : pulse(12, 1); },
       milestone() { pulse([20, 40, 20, 40, 45], 4, 80); },
@@ -552,7 +684,7 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
     Sfx.init(); Sfx.start(); Haptics.light();
     Object.assign(state, {active: true, time: ROUND, elapsed: 0, score: 0, combo: 0, maxCombo: 0, comboT: 0, hits: 0, misses: 0, spawnIn: .15, lastSec: 99});
     $('result').classList.remove('show'); $('hint').style.display = 'none';
-    $('start').disabled = true; $('start').textContent = '专注中…';
+    $('start').disabled = true; $('start-label').textContent = '专注中…'; $('open-settings').disabled = true;
     crabs.slice().forEach(kill); parts.length = 0; comboUI(false);
     render();
   }
@@ -566,7 +698,7 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
     if (rec) state.best = state.score;
     Sfx.end(); persist();
     setTimeout(() => {
-      $('start').disabled = false; $('start').textContent = '再来一局';
+      $('start').disabled = false; $('start-label').textContent = '再来一局'; $('open-settings').disabled = false;
       $('result-score').textContent = '+' + state.score + ' Token' + (state.score === 1 ? '' : 's');
       $('result-title').textContent = state.score === 0 ? '这次 Claude 快了一步。' : state.score >= 70 ? '比 Claude 想得还快。' : state.score >= 40 ? '眼疾手快。' : state.score >= 15 ? '抓得不错。' : '不错的开始。';
       $('r-combo').textContent = state.maxCombo;
@@ -582,13 +714,61 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
   $('start').addEventListener('click', start);
   $('again').addEventListener('click', start);
   $('result').addEventListener('pointerdown', e => e.stopPropagation());
-  const sb = $('sound'); sb.classList.toggle('muted', !Sfx.on);
-  sb.addEventListener('click', () => { sb.classList.toggle('muted', !Sfx.toggle()); });
   $('reset').addEventListener('click', () => {
     if (state.active) return;
     if (!confirm('清空累计 Tokens、抓获数和最佳记录？此操作无法撤销。')) return;
     state.tokens = 0; state.caught = 0; state.score = 0; state.best = 0; persist(); render();
   });
+
+  /* ---------- Greeting ---------- */
+  const hr = new Date().getHours();
+  $('greeting').textContent = (hr < 5 ? '夜深了' : hr < 11 ? '早上好' : hr < 13 ? '中午好' : hr < 18 ? '下午好' : '晚上好') + '，来抓 Claude 吧';
+
+  /* ---------- Settings ---------- */
+  let region = 'us';
+  try { region = localStorage.getItem('grabclaude_region') === 'cn' ? 'cn' : 'us'; } catch (_) {}
+  const setSwitch = (el, v) => el.setAttribute('aria-checked', v ? 'true' : 'false');
+  function syncSettings() {
+    document.querySelectorAll('[data-region]').forEach(b => b.setAttribute('aria-checked', b.dataset.region === region ? 'true' : 'false'));
+    setSwitch($('sw-sound'), Sfx.on); setSwitch($('sw-haptic'), Haptics.on);
+  }
+  function openSettings() { if (state.active) return; syncSettings(); $('settings').hidden = false; $('close-settings').focus(); }
+  function closeSettings() { $('settings').hidden = true; }
+  $('open-settings').addEventListener('click', openSettings);
+  $('close-settings').addEventListener('click', closeSettings);
+  $('settings').addEventListener('click', e => { if (e.target === $('settings')) closeSettings(); });
+  addEventListener('keydown', e => { if (e.key === 'Escape' && !$('settings').hidden) closeSettings(); });
+  $('sw-sound').addEventListener('click', () => { Sfx.set(!Sfx.on); syncSettings(); });
+  $('sw-haptic').addEventListener('click', () => { Haptics.set(!Haptics.on); syncSettings(); Haptics.light(); });
+  document.querySelectorAll('[data-region]').forEach(b => b.addEventListener('click', () => {
+    if (b.dataset.region === region) return;
+    region = b.dataset.region;
+    try { localStorage.setItem('grabclaude_region', region); } catch (_) {}
+    syncSettings(); Haptics.light();
+    if (region === 'cn') { closeSettings(); showBan(); } else hideBan();
+  }));
+
+  /* ---------- Region notice + appeal ---------- */
+  const appealLabel = '申请解封';
+  function showBan() {
+    const hex = () => Math.random().toString(16).slice(2, 10);
+    $('ban-id').textContent = hex() + '-' + hex().slice(0, 4) + '-' + hex().slice(0, 4);
+    const b = $('appeal'); b.disabled = false; b.classList.remove('ok'); b.textContent = appealLabel;
+    $('ban').classList.remove('out'); $('ban').hidden = false;
+  }
+  function hideBan() { $('ban').hidden = true; $('ban').classList.remove('out'); }
+  $('appeal').addEventListener('click', () => {
+    const b = $('appeal'); if (b.disabled) return;
+    b.disabled = true; Haptics.light();
+    b.innerHTML = '<span class="spinner"></span>正在审核申诉…';
+    setTimeout(() => {
+      b.classList.add('ok');
+      b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>申诉已通过';
+      setTimeout(() => { $('ban').classList.add('out'); setTimeout(hideBan, 350); }, 800);
+    }, 1500);
+  });
+  $('ban-region').addEventListener('click', openSettings);
+  if (region === 'cn') showBan();
   render();
 })();
 </script>
