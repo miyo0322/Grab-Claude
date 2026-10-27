@@ -133,9 +133,10 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
   main{padding:22px 16px 20px}
   .brand{font-size:23px}
   .token-chip{padding:8px 10px}
+  .result-card{padding:20px 20px}.result-card .mark,.result-card p{display:none}.result-score{margin:8px 0 2px}.result-meta{margin:10px 0 16px}
 }
 @media(max-height:700px){main{padding-top:14px;padding-bottom:14px}.eyebrow{display:none}h1{font-size:28px}.intro{margin-bottom:12px}.subtitle{margin-top:6px;font-size:13px}.stats{margin-bottom:12px}.stat{padding:8px 12px}.stat-value{font-size:18px}#play-area{min-height:200px}.controls{margin-top:12px}.primary{padding:13px 18px}.note{display:none}
-  #result{padding:12px}.result-card{padding:18px 20px}.result-card .mark{margin-bottom:8px}.result-score{margin:8px 0 2px}.result-meta{margin:10px 0 14px}}
+  #result{padding:12px}.result-card{padding:15px 20px}.result-card .mark{margin-bottom:8px}.result-score{margin:8px 0 2px}.result-meta{margin:10px 0 14px}}
 /* short landscape phones: drop the intro, keep the play area as large as possible */
 @media(max-height:500px){
   header{height:48px}.brand{font-size:20px}.mark{width:30px;height:20px}.icon-btn{width:32px;height:32px}.token-chip{padding:6px 10px}
@@ -168,9 +169,9 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
 </header>
 <main>
   <section class="intro">
-    <div class="eyebrow">Grab Claude</div>
+    <div class="eyebrow">Claude Code · 小游戏</div>
     <h1>抓住 Claude</h1>
-    <p class="subtitle">点中冒出来的 Claude，赢取 Token。连击越多越带劲。</p>
+    <p class="subtitle">Claude 只会短暂现身，点中换一枚 Token。保持专注。</p>
   </section>
   <section class="stats" aria-label="Game stats">
     <div class="stat"><div class="stat-label">本局获得</div><div class="stat-value" id="round-score">0</div></div>
@@ -181,14 +182,14 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
     <div id="timebar"></div>
     <canvas id="fx"></canvas>
     <div id="flash"></div>
-    <div class="play-hint" id="hint"><span class="mark" data-crab></span><span>Claude 已就位</span></div>
+    <div class="play-hint" id="hint"><span class="mark" data-crab></span><span>Claude 正在思考…</span></div>
     <div id="combo"><div class="n" id="combo-n">0</div><div class="lbl">连击</div><div class="meter"><i id="combo-meter"></i></div></div>
     <div id="banner"><b id="banner-t"></b><span id="banner-s"></span></div>
     <div id="result">
       <div class="result-card">
         <span class="mark" data-crab></span>
         <h2 id="result-title">抓得不错。</h2>
-        <p>本局获得的 Token 已加入累计总数。</p>
+        <p>本局 Token 已计入总数。</p>
         <div class="result-score" id="result-score">+0 Tokens</div>
         <div class="record" id="record">新纪录</div>
         <div class="result-meta">
@@ -203,7 +204,7 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
   <div class="controls">
     <button class="primary" id="start">开始抓 Claude</button>
     <div class="secondary-row"><span>每次 +1 · 金色 Claude +10 · 每 10 连击 +5</span><button class="secondary" id="reset">重置记录</button></div>
-    <p class="note">Tokens 仅为游戏积分，不是 Claude API 用量。</p>
+    <p class="note">Tokens 只是游戏积分，不计入 Claude 用量。粉丝自制，非 Anthropic 官方出品。</p>
   </div>
 </main>
 </div>
@@ -281,6 +282,34 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
       milestone() { [0, 7, 12, 19].forEach((n, i) => tone('triangle', 523 * st(n), null, .22, .15, i * .065)); noise(.25, .12, 6000, .2); },
       end() { tone('triangle', 659, null, .2, .14); tone('triangle', 988, null, .35, .12, .12); },
       start() { tone('square', 523, null, .05, .05); tone('square', 784, null, .07, .05, .07); }
+    };
+  })();
+
+  /* ---------- Haptics ---------- */
+  // Android: Vibration API. iOS Safari has no Vibration API, but toggling a native
+  // <input type="checkbox" switch> plays the system haptic (iOS 18+). Both only fire
+  // inside a user gesture, so every call below happens in a pointer/click handler.
+  const Haptics = (() => {
+    const vib = typeof navigator.vibrate === 'function';
+    let sw = null;
+    if (!vib) {
+      sw = document.createElement('label');
+      sw.setAttribute('aria-hidden', 'true');
+      sw.style.cssText = 'position:fixed;left:-99px;top:0;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none';
+      sw.innerHTML = '<input type="checkbox" switch tabindex="-1">';
+      document.body.appendChild(sw);
+    }
+    const pulse = (pattern, n, gap) => {
+      if (vib) { navigator.vibrate(pattern); return; }
+      if (!sw) return;
+      sw.click();
+      for (let i = 1; i < n; i++) setTimeout(() => sw.click(), i * gap);
+    };
+    return {
+      light() { pulse(8, 1); },
+      hit(golden) { golden ? pulse([30, 25, 40], 3, 70) : pulse(12, 1); },
+      milestone() { pulse([20, 40, 20, 40, 45], 4, 80); },
+      miss() { pulse(6, 1); }
     };
   })();
 
@@ -438,7 +467,7 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
     const stop = c.golden ? .12 : .055 + Math.min(state.combo, 12) * .004;
     freeze = Math.max(freeze, stop);
     Sfx.hit(state.combo, c.golden);
-    if (navigator.vibrate) navigator.vibrate(c.golden ? [30, 25, 40] : 12);
+    if (state.combo % 10 === 0) Haptics.milestone(); else Haptics.hit(c.golden);
     shake((c.golden ? 11 : 4) + Math.min(state.combo, 15) * .35);
     if (c.golden) restart($('flash'), 'go');
     const cx = c.x + c.w / 2, cy = c.y + c.h / 2;
@@ -459,7 +488,7 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
     state.misses++;
     if (state.combo >= 3) floatTxt(x, y, '连击中断', 'miss');
     state.combo = 0; state.comboT = 0; comboUI(false);
-    Sfx.miss(); dust(x, y + 6, 6, .5);
+    Sfx.miss(); Haptics.miss(); dust(x, y + 6, 6, .5);
     parts.push({type: 'ring', x, y, life: 0, max: .22, r0: 3, r1: 18, color: COL.dust, w: 2});
   }
   function comboUI(bumped) {
@@ -520,10 +549,10 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
 
   function start() {
     if (state.active) return;
-    Sfx.init(); Sfx.start();
+    Sfx.init(); Sfx.start(); Haptics.light();
     Object.assign(state, {active: true, time: ROUND, elapsed: 0, score: 0, combo: 0, maxCombo: 0, comboT: 0, hits: 0, misses: 0, spawnIn: .15, lastSec: 99});
     $('result').classList.remove('show'); $('hint').style.display = 'none';
-    $('start').disabled = true; $('start').textContent = '抓紧时间…';
+    $('start').disabled = true; $('start').textContent = '专注中…';
     crabs.slice().forEach(kill); parts.length = 0; comboUI(false);
     render();
   }
@@ -539,7 +568,7 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
     setTimeout(() => {
       $('start').disabled = false; $('start').textContent = '再来一局';
       $('result-score').textContent = '+' + state.score + ' Token' + (state.score === 1 ? '' : 's');
-      $('result-title').textContent = state.score === 0 ? 'Claude 都溜走了。' : state.score >= 40 ? '眼疾手快。' : '抓得不错。';
+      $('result-title').textContent = state.score === 0 ? '这次 Claude 快了一步。' : state.score >= 70 ? '比 Claude 想得还快。' : state.score >= 40 ? '眼疾手快。' : state.score >= 15 ? '抓得不错。' : '不错的开始。';
       $('r-combo').textContent = state.maxCombo;
       const tot = state.hits + state.misses;
       $('r-acc').textContent = (tot ? Math.round(state.hits / tot * 100) : 0) + '%';
@@ -557,7 +586,7 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
   sb.addEventListener('click', () => { sb.classList.toggle('muted', !Sfx.toggle()); });
   $('reset').addEventListener('click', () => {
     if (state.active) return;
-    if (!confirm('确定清空累计 Tokens、抓获与最佳记录吗？')) return;
+    if (!confirm('清空累计 Tokens、抓获数和最佳记录？此操作无法撤销。')) return;
     state.tokens = 0; state.caught = 0; state.score = 0; state.best = 0; persist(); render();
   });
   render();
