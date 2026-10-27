@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#f9f9f7">
-<title>Crab Catcher · Tokens</title>
+<title>Grab Claude</title>
 <style>
 :root{
   --paper:#f9f9f7;--surface:#ffffff;--ink:#141413;--ink2:#3d3c38;--muted:#77756f;
@@ -168,20 +168,20 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
 </header>
 <main>
   <section class="intro">
-    <div class="eyebrow">Code</div>
-    <h1>随时待命</h1>
-    <p class="subtitle">点击出现的螃蟹，获得 Token。连击越高，手感越重。</p>
+    <div class="eyebrow">Grab Claude</div>
+    <h1>抓住 Claude</h1>
+    <p class="subtitle">点中冒出来的 Claude，赢取 Token。连击越多越带劲。</p>
   </section>
   <section class="stats" aria-label="Game stats">
     <div class="stat"><div class="stat-label">本局获得</div><div class="stat-value" id="round-score">0</div></div>
     <div class="stat"><div class="stat-label">剩余时间</div><div class="stat-value" id="timer">20.0s</div></div>
     <div class="stat"><div class="stat-label">累计抓获</div><div class="stat-value" id="total-caught">0</div></div>
   </section>
-  <section id="play-area" aria-label="抓螃蟹游戏区域">
+  <section id="play-area" aria-label="抓 Claude 游戏区域">
     <div id="timebar"></div>
     <canvas id="fx"></canvas>
     <div id="flash"></div>
-    <div class="play-hint" id="hint"><span class="mark" data-crab></span><span>随时待命</span></div>
+    <div class="play-hint" id="hint"><span class="mark" data-crab></span><span>Claude 已就位</span></div>
     <div id="combo"><div class="n" id="combo-n">0</div><div class="lbl">连击</div><div class="meter"><i id="combo-meter"></i></div></div>
     <div id="banner"><b id="banner-t"></b><span id="banner-s"></span></div>
     <div id="result">
@@ -201,8 +201,8 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
     </div>
   </section>
   <div class="controls">
-    <button class="primary" id="start">开始抓螃蟹</button>
-    <div class="secondary-row"><span>每只 +1 · 金蟹 +10 · 每 10 连击 +5</span><button class="secondary" id="reset">重置记录</button></div>
+    <button class="primary" id="start">开始抓 Claude</button>
+    <div class="secondary-row"><span>每次 +1 · 金色 Claude +10 · 每 10 连击 +5</span><button class="secondary" id="reset">重置记录</button></div>
     <p class="note">Tokens 仅为游戏积分，不是 Claude API 用量。</p>
   </div>
 </main>
@@ -539,7 +539,7 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
     setTimeout(() => {
       $('start').disabled = false; $('start').textContent = '再来一局';
       $('result-score').textContent = '+' + state.score + ' Token' + (state.score === 1 ? '' : 's');
-      $('result-title').textContent = state.score === 0 ? '螃蟹都溜了。' : state.score >= 40 ? '手起钳落。' : '抓得不错。';
+      $('result-title').textContent = state.score === 0 ? 'Claude 都溜走了。' : state.score >= 40 ? '眼疾手快。' : '抓得不错。';
       $('r-combo').textContent = state.maxCombo;
       const tot = state.hits + state.misses;
       $('r-acc').textContent = (tot ? Math.round(state.hits / tot * 100) : 0) + '%';
