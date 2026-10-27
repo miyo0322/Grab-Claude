@@ -348,9 +348,9 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
     </div>
   </section>
   <div class="pills" aria-label="计分规则" data-i18n-aria="aria.rules">
-    <span class="pill"><i class="k-haiku"></i>Haiku +2</span>
+    <span class="pill"><i class="k-haiku"></i>Haiku +0.5</span>
     <span class="pill"><i></i>Sonnet +1</span>
-    <span class="pill"><i class="k-fable"></i>Fable +5</span>
+    <span class="pill"><i class="k-fable"></i>Fable +20</span>
     <span class="pill"><i class="k-opus"></i>Opus +10</span>
     <span class="pill"><i class="k-mythos"></i>Mythos +50</span>
     <span class="pill"><i></i><span data-i18n="p.combo"></span></span>
@@ -519,8 +519,8 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
   const KINDS = {
     mythos: {p: .006, pts: 50, du: 2, tier: 3, name: 'Mythos'},
     opus:   {p: .07,  pts: 10, du: 1, tier: 2, name: 'Opus'},
-    fable:  {p: .06,  pts: 5,  du: 0, tier: 1, name: 'Fable', life: 1.15, speed: .8},
-    haiku:  {p: .18,  pts: 2,  du: -1, tier: 0, name: 'Haiku', life: .7, speed: 1.6},
+    fable:  {p: .06,  pts: 20, du: 0, tier: 1, name: 'Fable', life: 1.15, speed: .8},
+    haiku:  {p: .18,  pts: .5, du: -1, tier: 0, name: 'Haiku', life: .7, speed: 1.6},
     sonnet: {p: 1,    pts: 1,  du: 0, tier: 0, name: 'Sonnet', life: 1, speed: 1}
   };
   function pickKind() {
@@ -653,10 +653,11 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
 
   const restart = (el, cls) => { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); };
   let shownSec = '';
+  const fmt = n => String(Math.round(n * 10) / 10);   // Haiku is worth half a token
   function render() {
-    $('total-tokens').textContent = state.tokens;
+    $('total-tokens').textContent = fmt(state.tokens);
     $('total-caught').textContent = state.caught;
-    $('round-score').textContent = state.score;
+    $('round-score').textContent = fmt(state.score);
     const t = state.time.toFixed(1) + 's';
     if (t !== shownSec) { $('timer').textContent = t; shownSec = t; }
     $('timer').classList.toggle('urgent', state.active && state.time <= 5);
@@ -909,12 +910,12 @@ canvas#fx{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-eve
     Sfx.end(); persist();
     setTimeout(() => {
       startKey = 'again'; $('start').disabled = false; $('start-label').textContent = t('again'); $('open-settings').disabled = false;
-      $('result-score').textContent = '+' + state.score + ' Token' + (state.score === 1 ? '' : 's');
+      $('result-score').textContent = '+' + fmt(state.score) + ' Token' + (state.score === 1 ? '' : 's');
       $('result-title').textContent = t('title', state.score);
       $('r-combo').textContent = state.maxCombo;
       const tot = state.hits + state.misses;
       $('r-acc').textContent = (tot ? Math.round(state.hits / tot * 100) : 0) + '%';
-      $('r-best').textContent = state.best;
+      $('r-best').textContent = fmt(state.best);
       $('record').classList.toggle('show', rec);
       $('result').classList.add('show');
     }, 380);
