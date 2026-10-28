@@ -1,0 +1,26 @@
+# Claude Code: temporary worktrees and per-machine settings
+.claude/worktrees/
+.claude/settings.local.json
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Logs and scratch
+*.log
+*.tmp
+*.bak
+scratch/
+
+# Node tooling, in case tests or a dev server are added later
+node_modules/
+npm-debug.log*
