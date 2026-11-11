@@ -67,7 +67,10 @@
 
 ```
 Grab Claude.html   游戏本体:HTML + CSS + JS,约 1200 行
+README.md          本文件
+说明.md            中文说明与附带文件清单
 LICENSE            Apache License 2.0
+.gitignore         忽略本地测试与开发用文件
 ```
 
 ## 声明
